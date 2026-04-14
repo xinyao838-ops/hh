@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>模拟喝奶茶小程序</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1>🧋 模拟喝奶茶</h1>
+      <p class="subtitle">自定义口味，然后一口一口喝完它！</p>
+
+      <section class="panel config-panel">
+        <h2>口味配置</h2>
+        <div class="control-row">
+          <label for="sugar">甜度</label>
+          <select id="sugar">
+            <option value="0">无糖</option>
+            <option value="30">三分糖</option>
+            <option value="50" selected>五分糖</option>
+            <option value="70">七分糖</option>
+            <option value="100">全糖</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <label for="ice">冰量</label>
+          <select id="ice">
+            <option value="0">去冰</option>
+            <option value="30">微冰</option>
+            <option value="60" selected>少冰</option>
+            <option value="100">正常冰</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <label for="topping">加料</label>
+          <select id="topping">
+            <option value="珍珠" selected>珍珠</option>
+            <option value="椰果">椰果</option>
+            <option value="布丁">布丁</option>
+            <option value="芋圆">芋圆</option>
+            <option value="无">无</option>
+          </select>
+        </div>
+
+        <button id="brewBtn">重新制作奶茶</button>
+      </section>
+
+      <section class="panel drink-panel">
+        <h2>喝奶茶进度</h2>
+        <div class="cup">
+          <div id="milkTeaLevel" class="milk-tea-level"></div>
+          <div id="cupLabel" class="cup-label">100%</div>
+        </div>
+
+        <div class="stats">
+          <p>满足感：<span id="mood">0</span>/100</p>
+          <p>当前口味：<span id="recipeText">五分糖 / 少冰 / 珍珠</span></p>
+          <p id="message">已为你准备好一杯奶茶，开始喝吧！</p>
+        </div>
+
+        <div class="actions">
+          <button id="sipBtn">喝一口</button>
+          <button id="bigSipBtn">大口吨吨吨</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
