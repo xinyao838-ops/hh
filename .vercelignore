@@ -1,0 +1,14 @@
+node_modules
+.git
+.env*
+.qa
+.deployment-local
+.netlify
+.wrangler
+dist
+docs
+*.log
+*.tsbuildinfo
+*.cmd
+*.png
+tests/*-browser.html

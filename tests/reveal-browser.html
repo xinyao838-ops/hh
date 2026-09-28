@@ -1,0 +1,81 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>04 开纹 · 浏览器验收</title>
+<style>body{font:14px system-ui;background:#eee7dc;color:#514135;margin:24px}button{padding:12px 20px}pre{white-space:pre-wrap}.shots{display:flex;gap:12px}.shots figure{margin:0;background:#e6dccb}.shots img{width:220px;display:block}.shots figcaption{padding:10px}iframe{display:block;width:390px;height:844px;border:0;margin-top:20px}</style>
+<h1>04 开纹 · 浏览器验收</h1><p>仅开发环境；结束后恢复原本的制作记录。</p><button id="run">运行开纹验收</button><pre role="status" id="result">尚未运行</pre><div class="shots"></div><iframe id="app" title="手机开纹工作台" src="/#/clay"></iframe>
+<script type="module">
+import {createFinalPattern} from '/src/features/reveal/pattern.ts'
+const iframe=document.querySelector('#app'),out=document.querySelector('#result'),run=document.querySelector('#run'),key='jiaoyiwen.workshop.v1'
+const raf=()=>new Promise(resolve=>requestAnimationFrame(resolve)),doc=()=>iframe.contentDocument
+const wait=async predicate=>{const start=performance.now();while(!predicate()){if(performance.now()-start>9000)throw Error('等待状态超时');await raf()}await raf()}
+const check=(pass,label)=>{if(!pass)throw Error(label);out.textContent+='\n通过：'+label}
+const click=async selector=>{await wait(()=>doc().querySelector(selector)&&!doc().querySelector(selector).disabled);doc().querySelector(selector).click();await raf()}
+const emit=(canvas,type,p,id=81,kind='touch')=>{const r=canvas.getBoundingClientRect();canvas.dispatchEvent(new iframe.contentWindow.PointerEvent(type,{bubbles:true,cancelable:true,pointerType:kind,pointerId:id,isPrimary:id===81,button:0,buttons:type==='pointerup'?0:1,pressure:.6,clientX:r.left+p.x*r.width,clientY:r.top+p.y*r.height}))}
+const stroke=async(canvas,from,to,kind='touch')=>{emit(canvas,'pointerdown',from,81,kind);for(let i=1;i<=24;i++){emit(canvas,'pointermove',{x:from.x+(to.x-from.x)*i/24,y:from.y+(to.y-from.y)*i/24},81,kind);await raf()}emit(canvas,'pointerup',to,81,kind);await raf()}
+run.onclick=async()=>{
+  run.disabled=true;out.textContent='正在运行…';document.querySelector('.shots').replaceChildren()
+  const previous=localStorage.getItem(key);let observer
+  try{
+    iframe.contentWindow.location.hash='/clay';await wait(()=>doc().querySelector('.clay-palette'))
+    for(const c of [...doc().querySelectorAll('.clay-choice[aria-pressed="true"]')]){c.click();await raf()}
+    await click('.clay-choice[aria-label="胎白"]');await click('.clay-choice[aria-label="赤陶"]');await click('.start-twisting')
+    await wait(()=>doc().querySelector('.twist-canvas'))
+    const clay=doc().querySelector('.twist-canvas')
+    await stroke(clay,{x:.48,y:.43},{x:.58,y:.60});await stroke(clay,{x:.58,y:.60},{x:.30,y:.49})
+    for(let i=0;i<4;i++){await click('.craft-actions button:first-child');await wait(()=>!doc().querySelector('.craft-actions button:last-child').disabled)}
+    for(let i=0;i<3;i++){await click('.craft-actions button:last-child');await wait(()=>!doc().querySelector('.twist-footer button')?.disabled)}
+    await click('.twist-footer button');await wait(()=>doc().querySelector('.reveal-canvas')?.dataset.phase==='uncut')
+    let canvas=doc().querySelector('.reveal-canvas')
+    const source=JSON.parse(localStorage.getItem(key)),expected=createFinalPattern(source)
+    check(canvas.dataset.sourceKey===expected.sourceKey&&canvas.dataset.materialColors==='#dfcfb3,#ad6647','从03进入，读取同一泥色、种子、手势、绞折记录及完成快照')
+    check(!source.finalPattern&&!doc().querySelector('.reveal-footer button')&&!doc().querySelector('.reveal-words').textContent,'切割之前不展示完整截面、结果文案或下一步按钮')
+    const capture=label=>{const f=document.createElement('figure'),im=document.createElement('img'),c=document.createElement('figcaption');im.src=canvas.toDataURL();im.alt=label;c.textContent=label;f.append(im,c);document.querySelector('.shots').append(f)}
+    capture('划开之前')
+    await stroke(canvas,{x:.64,y:.76},{x:.64,y:.27})
+    check(canvas.dataset.phase==='uncut'&&doc().querySelector('.cut-guide').textContent.includes('从上往下'),'反向手势不切开，仅轻量提示')
+    const retryStart=performance.now();await wait(()=>performance.now()-retryStart>1900)
+    await stroke(canvas,{x:.64,y:.28},{x:.64,y:.45},'mouse')
+    check(canvas.dataset.phase==='uncut'&&doc().querySelector('.cut-guide').textContent==='在泥坯任意位置，向下划一刀。','短划不误触，纠正提示不反复出现')
+    emit(canvas,'pointerdown',{x:.64,y:.26});emit(canvas,'pointermove',{x:.64,y:.78});emit(canvas,'pointercancel',{x:.64,y:.78})
+    check(canvas.dataset.phase==='uncut','取消接触不触发切开')
+    const scroll=iframe.contentWindow.scrollY
+    await stroke(canvas,{x:.29,y:.26},{x:.31,y:.78})
+    const cuttingAt=performance.now();check(canvas.dataset.phase==='cutting','远离原引导线的左侧划切触发动画')
+    check(Number(canvas.dataset.cutX)>.28&&Number(canvas.dataset.cutX)<.32,'切口位置跟随手势落点');await wait(()=>Number(canvas.dataset.animationProgress)>.36);capture('平整切口，薄片分离');await wait(()=>Number(canvas.dataset.animationProgress)>.60);capture('切片转向用户')
+    await wait(()=>canvas.dataset.phase==='revealed');const openedAt=performance.now();capture('完整截面')
+    check(openedAt-cuttingAt>=2300&&openedAt-cuttingAt<2900,'切痕、薄片分离、转向和清晰显纹约2.5秒完成')
+    check(!doc().querySelector('.reveal-words').textContent,'截面完整出现后先保持安静')
+    await wait(()=>doc().querySelector('.reveal-words p:first-child').textContent);const firstAt=performance.now()
+    check(firstAt-openedAt>=500,'完整截面静置约0.6秒后才出现第一句')
+    await wait(()=>doc().querySelector('.reveal-words p:last-child').textContent)
+    check(performance.now()-firstAt>=300,'再间隔约0.4秒出现第二句')
+    await wait(()=>doc().querySelector('.reveal-footer button'))
+    check(iframe.contentWindow.scrollY===scroll&&iframe.contentWindow.getComputedStyle(canvas).touchAction==='none','手机划切没有引起页面滚动')
+    const saved=JSON.parse(localStorage.getItem(key))
+    check(saved.finalPattern?.sourceKey===expected.sourceKey&&saved.finalPattern.model.columns.length===57,'finalPattern保存可重绘的同源矢量参数')
+    const tap=p=>{emit(canvas,'pointerdown',p);emit(canvas,'pointerup',p)}
+    tap({x:.72,y:.5});await wait(()=>Number(canvas.dataset.zoom)>1)
+    check(Number(canvas.dataset.zoom)>1.8,'轻触截面可放大，Canvas重新绘制细节')
+    tap({x:.72,y:.5});await wait(()=>Number(canvas.dataset.zoom)===1)
+    emit(canvas,'pointerdown',{x:.32,y:.5},81);emit(canvas,'pointerdown',{x:.45,y:.5},82)
+    emit(canvas,'pointermove',{x:.63,y:.5},82);await raf();await raf()
+    check(Number(canvas.dataset.zoom)>1.5&&Number(canvas.dataset.zoom)<=2.4,'双指展开可以受限放大')
+    emit(canvas,'pointerup',{x:.63,y:.5},82);emit(canvas,'pointerup',{x:.32,y:.5},81);tap({x:.72,y:.5});await raf()
+    for(const[width,height]of[[390,844],[375,812],[430,932]]){
+      iframe.style.width=width+'px';iframe.style.height=height+'px';await raf();await raf();await raf()
+      const root=doc().documentElement,footer=doc().querySelector('.reveal-footer').getBoundingClientRect()
+      check(root.scrollWidth<=width+1&&root.scrollHeight<=height+1&&footer.bottom<=height+1,`${width}×${height} 无裁切和横向滚动`)
+    }
+    iframe.style.width='390px';iframe.style.height='844px'
+    await new Promise(resolve=>{iframe.addEventListener('load',resolve,{once:true});iframe.contentWindow.location.reload()})
+    await wait(()=>doc().querySelector('.reveal-canvas')?.dataset.phase==='revealed');canvas=doc().querySelector('.reveal-canvas')
+    check(canvas.dataset.sourceKey===expected.sourceKey,'刷新后仍是同一截面，无需重新切割')
+    await click('.reveal-footer button');await wait(()=>doc().querySelector('.shape-canvas')?.dataset.sourceKey)
+    check(doc().querySelector('.shape-canvas').dataset.sourceKey===expected.sourceKey,'05读取同一finalPattern进入塑器')
+    await click('.shape-page .clay-back');await wait(()=>doc().querySelector('.reveal-canvas')?.dataset.phase==='revealed')
+    await click('.clay-back');await wait(()=>doc().querySelector('.twist-canvas'));await click('.twist-footer button')
+    await wait(()=>doc().querySelector('.reveal-canvas')?.dataset.phase==='revealed')
+    check(doc().querySelector('.reveal-canvas').dataset.sourceKey===expected.sourceKey,'返回03未修改，再进入04时纹样保持一致')
+    out.textContent+='\n全部通过。触摸与双指为浏览器合成 Pointer Events，真机仍待验收。'
+  }catch(error){out.textContent+='\n失败：'+error.message;console.error(error)}
+  finally{observer?.disconnect();if(previous===null)localStorage.removeItem(key);else localStorage.setItem(key,previous);run.disabled=false}
+}
+</script></html>

@@ -1,0 +1,42 @@
+/* Refinements are scoped to the entrance; the clay placeholder is unchanged. */
+.entrance-page .identity-name { font-size: 21px; gap: 10px; letter-spacing: .12em; }
+.entrance-page .brand-seal { color: var(--color-brown); border-color: var(--color-brown); font-size: 18px; }
+.entrance-page .identity-edition { font-size: 12px; letter-spacing: .12em; }
+.entrance-page .entrance-composition { padding-top: 26px; }
+.entrance-page .entrance-heading h1 { margin-top: 0; }
+.entrance-page .subtitle { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 15px; letter-spacing: .12em; }
+.entrance-page .subtitle strong { font-weight: 600; color: var(--color-brown); }
+.entrance-page .subtitle span { padding-left: 10px; border-left: 1px solid var(--color-line); }
+.entrance-page .artwork-stage { height: clamp(285px, 39svh, 365px); margin: 16px -14px 13px; }
+.entrance-page .artwork-note { font-size: 12px; letter-spacing: .2em; color: #938779; opacity: .8; }
+.entrance-page .artwork-note::before { display: none; }
+.entrance-page .artwork-note--left { top: 37%; left: 0; }
+.entrance-page .artwork-note--right { bottom: 22%; right: 0; }
+.clay-section { position: relative; width: min(100%, 340px); aspect-ratio: 1; flex-shrink: 0; animation: clay-section-breathe 24s ease-in-out infinite; }
+.clay-section::before { content: ''; position: absolute; width: 82%; height: 83%; inset: 10% 9% 7%; border-radius: 48%; background: #654933; transform: translate(1px, 5px); box-shadow: 3px 14px 20px #49352622; }
+.clay-section canvas { display: block; position: relative; width: 100%; height: 100%; }
+.entrance-page .primary-button { appearance: none; -webkit-appearance: none; -webkit-tap-highlight-color: transparent; -webkit-text-fill-color: currentColor; user-select: none; -webkit-user-select: none; outline: none; min-height: 58px; transition: transform 160ms ease, background 220ms ease, box-shadow 220ms ease; }
+.entrance-page .primary-button:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.entrance-page .primary-button:focus-visible { outline: 2px solid var(--color-fire); outline-offset: 5px; box-shadow: 0 0 0 2px var(--color-clay); }
+.entrance-page .primary-button:active { transform: translateY(1px) scale(.985); box-shadow: inset 0 2px 7px #160d0733; }
+.entrance-page .primary-button:disabled { cursor: default; opacity: 1; color: var(--color-clay); background: var(--color-brown); }
+.button-clay-mark { color: #d2aa81; flex-shrink: 0; }
+.entrance-page .primary-button > span { font: 18px var(--font-serif); letter-spacing: .25em; padding-left: .25em; }
+.entrance-page .journey-footer { margin-top: 32px; padding: 0 4px; }
+.entrance-progress { list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; align-items: baseline; gap: clamp(12px, 4vw, 22px); flex-wrap: wrap; font: 12px/1.8 var(--font-serif); color: var(--color-muted); }
+.entrance-progress li { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+.entrance-progress li:not(:first-child)::before { content: '/'; color: var(--color-line); margin-right: clamp(4px, 1vw, 8px); }
+.entrance-progress li[aria-current] { color: var(--color-ink); font-size: 14px; }
+.entrance-progress li[aria-current] .progress-number { color: var(--color-fire); }
+.progress-number { font-family: Georgia, serif; font-size: 12px; letter-spacing: .035em; }
+.entrance-progress .progress-more::before { display: none; }
+.entrance-page .entrance-composition { transition: opacity 440ms ease, transform 600ms cubic-bezier(.25,.1,.25,1); }
+.entrance-page.is-entering .entrance-composition { opacity: .1; transform: translateY(-6px) scale(1.025); }
+.entrance-transition { position: fixed; inset: 0; z-index: 20; background: var(--color-clay); pointer-events: auto; animation: enter-workshop 720ms linear both; }
+@keyframes enter-workshop { 0% { opacity: 0; } 55%, 63% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes clay-section-breathe { 0%, 100% { transform: rotate(-.65deg) scale(.995); } 50% { transform: rotate(.65deg) scale(1.005); } }
+@media (max-width: 360px) { .entrance-page .subtitle { font-size: 14px; gap: 7px; letter-spacing: .06em; } .entrance-page .subtitle span { padding-left: 7px; } .entrance-progress { gap: 10px; } }
+@media (max-height: 750px) and (max-width: 699px) { .entrance-page .entrance-composition { padding-top: 18px; } .entrance-page .artwork-stage { height: 265px; margin-top: 10px; margin-bottom: 8px; } .clay-section { width: 275px; } .entrance-page .primary-button { min-height: 54px; margin-top: 18px; } .entrance-page .journey-footer { margin-top: 24px; } }
+@media (max-height: 650px) and (max-width: 699px) { .entrance-page .entrance-composition { padding-top: 10px; } .entrance-page .artwork-stage { height: 205px; margin: 5px -10px; } .clay-section { width: 215px; } .entrance-page .primary-button { min-height: 50px; margin-top: 12px; } .entrance-page .journey-footer { margin-top: 18px; } }
+@media (min-width: 700px) { .entrance-page .entrance-composition { padding-top: 25px; } .entrance-page .artwork-stage { height: 480px; margin: 0; } .clay-section { width: min(42vw, 470px); } .entrance-page .artwork-note--left { left: -6px; } .entrance-page .artwork-note--right { right: -6px; } }
+@media (prefers-reduced-motion: reduce) { .entrance-page.is-entering .entrance-composition { opacity: 1; transform: none; } }

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+.env.local
+.env*
+!.env.example
+.vercel/
+.netlify/
+.wrangler/
+.deployment-local/
+/docs/
+.qa/
+*.log

@@ -1,0 +1,3 @@
+// Animation timings only; these are not brand production or firing parameters.
+export const kilnConfig={version:1,entryDuration:2400,firingDuration:6800,quietDuration:500,openingDuration:1500,revealQuiet:1000,observationDuration:2600,saveInterval:1000} as const
+export const kilnCopy={step:'06 / 入窑',title:'最后一道火。',subtitle:'泥与纹，要在火里定下来。',enter:'送它入窑',back:'返回塑器',ready:'可以开窑了。',open:'向上滑开窑门。',turn:'转一转，看看烧成后的纹。',first:'这一纹，烧成了。',second:'从泥，到瓷。',next:'收下我的这一纹',canvas:'入窑后等待窑火落下，再向上拖动打开窑门；键盘向上箭头也可开启。开窑后左右拖动或用左右箭头转动器物。',states:['窑火渐起','泥坯正在定形','纹与胎，慢慢烧在一起','火落，等待开窑'],collectionStep:'07 / 我的这一纹',collectionTitle:'这一纹，属于你。',collectionBody:'你的器物与纹样已保存，纹卡将在下一阶段开启。',return:'返回看瓷'} as const

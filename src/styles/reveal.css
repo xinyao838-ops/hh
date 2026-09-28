@@ -1,0 +1,24 @@
+.reveal-page { width: 100%; max-width: 550px; min-height: 100svh; margin: auto; padding: max(18px, env(safe-area-inset-top)) 26px max(24px, env(safe-area-inset-bottom)); overflow: hidden; }
+.reveal-heading { text-align: center; padding-top: 23px; }
+.reveal-heading h1 { font: 26px/1.65 var(--font-serif); letter-spacing: .015em; text-wrap: balance; }
+.reveal-heading p { margin-top: 10px; font: 15px/1.8 var(--font-serif); color: var(--color-muted); }
+.reveal-workspace { position: relative; margin: 22px -7px 0; background: radial-gradient(ellipse at 50% 61%, #e9dfce70 0%, #eee6d820 44%, transparent 72%); }
+.reveal-canvas { display: block; width: 100%; height: clamp(340px, 44svh, 410px); border-radius: inherit; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; overscroll-behavior: contain; cursor: crosshair; -webkit-tap-highlight-color: transparent; outline: none; }
+.reveal-canvas:focus-visible { outline: 2px solid var(--color-fire); outline-offset: 4px; }
+.is-open .reveal-canvas { cursor: zoom-in; }
+.cut-guide { position: absolute; bottom: 23px; width: 100%; text-align: center; pointer-events: none; font: 13px/1.8 var(--font-serif); color: #8b7662; }
+.reveal-words { min-height: 73px; padding-top: 20px; text-align: center; }
+.reveal-words p { min-height: 25px; opacity: 0; transition: opacity .65s ease; }
+.reveal-words p:first-child { font: 20px/1.5 var(--font-serif); letter-spacing: .08em; }
+.reveal-words p:last-child { margin-top: 9px; font: 14px/1.6 var(--font-serif); letter-spacing: .1em; color: var(--color-muted); }
+.reveal-words p.is-visible { opacity: 1; }
+.inspect-hint { min-height: 24px; text-align: center; margin-top: 16px; font: 11px/1.7 var(--font-serif); color: #9d8974; }
+.reveal-footer { margin-top: auto; padding-top: 22px; }
+.reveal-footer button { animation: reveal-invitation .8s ease both; }
+.reveal-footer button span { font: 16px var(--font-serif); letter-spacing: .06em; }
+.reveal-page button { appearance: none; -webkit-appearance: none; -webkit-text-fill-color: currentColor; -webkit-tap-highlight-color: transparent; }
+.reveal-storage { text-align: center; font: 12px/1.5 var(--font-serif); color: var(--color-muted); margin-top: 5px; }
+@keyframes reveal-invitation { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-height: 820px) { .reveal-heading { padding-top: 13px; } .reveal-heading h1 { font-size: 24px; } .reveal-workspace { margin-top: 17px; } .reveal-canvas { height: 340px; } .reveal-words { padding-top: 17px; } .reveal-footer { padding-top: 16px; } }
+@media (max-width: 360px) { .reveal-page { padding-left: 22px; padding-right: 22px; } .reveal-heading h1 { font-size: 23px; } }
+

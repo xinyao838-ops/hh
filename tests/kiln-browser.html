@@ -1,0 +1,60 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>06 入窑 · 浏览器验收</title>
+<style>body{margin:24px;background:#f1ebdf;color:#514135;font:14px system-ui}button{padding:10px 16px;margin-right:8px}pre{white-space:pre-wrap}.shots{display:flex;gap:16px}.shots img{width:200px}figure{margin:0}iframe{display:block;width:390px;height:844px;border:0;margin-top:20px}body.phone{margin:0}body.phone>:not(iframe){display:none}body.phone iframe{margin:0}</style>
+<h1>06 入窑 · 浏览器验收</h1><button id="run">运行入窑验收</button><button id="phone">仅查看手机效果</button><label><input id="manual" type="checkbox">由鼠标手动开窑</label><pre id="result" role="status">尚未运行</pre><div class="shots"></div><iframe id="app" title="手机入窑工作台" src="/#/clay"></iframe>
+<script type="module">
+import {createWorkshopState,toggleClay,saveOperations,saveFinalPattern,saveShapeDraft} from '/src/state/workshopModel.ts'
+import {createFinalPattern} from '/src/features/reveal/pattern.ts'
+import {initialShape} from '/src/features/shaping/model.ts'
+import {marblingConfig} from '/src/config/marbling.ts'
+const frame=document.querySelector('#app'),out=document.querySelector('#result'),run=document.querySelector('#run'),key='jiaoyiwen.workshop.v1';document.querySelector('#phone').onclick=()=>{document.body.classList.add('phone');window.scrollTo(0,0)}
+const raf=()=>new Promise(r=>requestAnimationFrame(r)),doc=()=>frame.contentDocument
+const wait=async(fn,ms=16000)=>{const at=performance.now();while(!fn()){if(performance.now()-at>ms)throw Error('等待状态超时');await raf()}await raf()}
+const check=(ok,label)=>{if(!ok)throw Error(label);out.textContent+='\n通过：'+label}
+const click=async s=>{await wait(()=>doc().querySelector(s));doc().querySelector(s).click();await raf()}
+const load=hash=>new Promise(r=>{frame.addEventListener('load',r,{once:true});frame.src='/?kiln-test='+Date.now()+hash})
+const emit=(canvas,type,p,id=1,kind='touch')=>{const r=canvas.getBoundingClientRect();canvas.dispatchEvent(new frame.contentWindow.PointerEvent(type,{bubbles:true,cancelable:true,pointerType:kind,pointerId:id,isPrimary:id===1,button:0,buttons:type==='pointerup'?0:1,clientX:r.left+p.x*r.width,clientY:r.top+p.y*r.height}))}
+const stroke=async(canvas,a,b,kind='touch',cancel=false)=>{emit(canvas,'pointerdown',a,1,kind);for(let i=1;i<=22;i++){emit(canvas,'pointermove',{x:a.x+(b.x-a.x)*i/22,y:a.y+(b.y-a.y)*i/22},1,kind);await raf()}emit(canvas,cancel?'pointercancel':'pointerup',b,1,kind);await raf();await raf()}
+run.onclick=async()=>{
+ const previous=localStorage.getItem(key);run.disabled=true;out.textContent='正在运行…';document.querySelector('.shots').replaceChildren()
+ try{
+  let s=toggleClay(toggleClay(createWorkshopState(),'ivory'),'terracotta');s.interactionSeed=137
+  const ops=[];for(let j=1;j<5;j++){for(let i=0;i<16;i++)ops.push({kind:'drag',from:{x:.35+i*.015,y:.43+Math.sin(i*.25)*.12},to:{x:.365+i*.015,y:.43+Math.sin((i+1)*.25)*.12},pressure:.6,time:i*20,strokeId:j,pointerType:'touch'});ops.push({kind:'twist'});if(j<4)ops.push({kind:'fold'})}
+  s=saveOperations(s,ops,{seed:137,algorithmVersion:marblingConfig.version,operationCount:ops.length,imageDataUrl:'data:image/png;base64,AAAA',width:384,height:384});s=saveFinalPattern(s,createFinalPattern(s));s=saveShapeDraft(s,{...initialShape(s.finalPattern.sourceKey),vesselType:'cup',progress:1,observed:true,rotation:.4});localStorage.setItem(key,JSON.stringify(s))
+  await load('#/shape');await wait(()=>doc().querySelector('.shape-canvas')?.dataset.rotation!==undefined&&doc().querySelector('.shape-footer button'))
+  let c=doc().querySelector('.shape-canvas');const original=c,ids=[c.dataset.sceneId,c.dataset.meshId,c.dataset.cameraId],source=JSON.stringify(s.finalPattern),rotation=Number(c.dataset.rotation)
+  const capture=label=>{const f=document.createElement('figure'),im=document.createElement('img'),caption=document.createElement('figcaption');im.src=c.toDataURL();im.alt=label;caption.textContent=label;f.append(im,caption);document.querySelector('.shots').append(f)}
+  capture('05 · 未烧制泥坯')
+  await click('.shape-footer button');await wait(()=>c.dataset.kilnPhase==='idle')
+  check(c===doc().querySelector('.kiln-canvas')&&ids.join()=== [c.dataset.sceneId,c.dataset.meshId,c.dataset.cameraId].join(),'05→06 保留同一 Canvas、Scene、Camera 和 Mesh')
+  check(c.dataset.vesselType==='cup'&&c.dataset.shapeProgress==='1'&&Math.abs(Number(c.dataset.rotation)-rotation)<1e-8&&c.dataset.sourceKey===s.finalPattern.sourceKey,'器型、完整塑形进度、朝向与纹样来源一致')
+  check(Number(c.dataset.roughness)===1&&Number(c.dataset.firingProgress)===0,'进入06仍是原来的哑光泥坯')
+  await click('.kiln-footer button');await wait(()=>c.dataset.kilnPhase==='entering');check(!doc().querySelector('.kiln-footer button'),'入窑在当前场景进行，按钮不重复触发')
+  await wait(()=>c.dataset.kilnPhase==='firing'&&Number(c.dataset.firingProgress)>.28)
+  const rough=Number(c.dataset.roughness),mix=Number(c.dataset.pigmentMix);check(rough<1&&rough>.34&&mix>0&&mix<1,'窑内粗糙度与同源色层正在连续变化')
+  check(Number(c.dataset.door)===1,'窑门关闭后才进行烧制')
+  const saved=JSON.parse(localStorage.getItem(key));check(saved.kilnDraft.phase==='firing'&&saved.kilnDraft.elapsed>0,'烧制中保存可恢复进度')
+  await load('#/kiln');await wait(()=>doc().querySelector('.kiln-canvas')?.dataset.kilnPhase==='firing');c=doc().querySelector('.kiln-canvas')
+  check(Number(c.dataset.firingProgress)>0&&c.dataset.sourceKey===s.finalPattern.sourceKey,'刷新续接烧制，纹样与器型不变')
+  await wait(()=>c.dataset.kilnPhase==='ready');check(Number(c.dataset.firingProgress)===1&&Number(c.dataset.door)===1&&doc().querySelector('.kiln-status').textContent==='可以开窑了。','火落后等待用户开窑，不自动揭幕')
+  await stroke(c,{x:.5,y:.3},{x:.5,y:.8});check(c.dataset.kilnPhase==='ready','向下滑动不会打开窑门')
+  await stroke(c,{x:.5,y:.82},{x:.5,y:.6},'touch',true);await wait(()=>Number(c.dataset.door)>.999);check(c.dataset.kilnPhase==='ready','取消触摸时窑门平稳回落')
+  const scroll=frame.contentWindow.scrollY
+  if(document.querySelector('#manual').checked){out.textContent+='\n等待：请在手机工作台向上拖动窑门。';await wait(()=>c.dataset.kilnPhase==='opening',120000)}else{await stroke(c,{x:.5,y:.82},{x:.51,y:.42});await wait(()=>c.dataset.kilnPhase==='opening')};check(!doc().querySelector('.kiln-result').textContent,'用户向上开窑，器物显露前无结果文案')
+  await wait(()=>c.dataset.kilnPhase==='revealed');const openedAt=performance.now();capture('06 · 同一件器物烧成后')
+  check(!doc().querySelector('.kiln-result').textContent&&!doc().querySelector('.kiln-footer button'),'开窑后先让器物单独停留')
+  await wait(()=>doc().querySelector('.kiln-result').textContent);check(performance.now()-openedAt>=850,'约1秒后才出现烧成文案')
+  check(Number(c.dataset.roughness)<.4&&Number(c.dataset.pigmentMix)===1&&Number(c.dataset.clearcoat)>.1,'同一表面完成温润瓷质变化，保留非玻璃粗糙度')
+  check(!doc().querySelector('.kiln-footer button'),'未转动观察之前，不显示领取入口')
+  const b=JSON.parse(c.dataset.bounds),center={x:.5,y:(b.top+b.bottom)/2};await stroke(c,center,{x:.75,y:center.y},'mouse');await wait(()=>doc().querySelector('.kiln-footer button'))
+  check(c.dataset.kilnObserved==='true'&&frame.contentWindow.scrollY===scroll&&frame.contentWindow.getComputedStyle(c).touchAction==='none','开窑后转动观察，达到停留时间才出现领取入口，触摸不滚屏')
+  check(JSON.stringify(JSON.parse(localStorage.getItem(key)).finalPattern)===source,'整个烧制与开窑从未改写 finalPattern')
+  for(const[width,height]of[[390,844],[375,812],[430,932]]){frame.style.width=width+'px';frame.style.height=height+'px';await raf();await raf();await raf();const root=doc().documentElement,footer=doc().querySelector('.kiln-footer').getBoundingClientRect();check(root.scrollWidth<=width+1&&root.scrollHeight<=height+1&&footer.bottom<=height+1,`${width}×${height} 无裁切与横向滚动`)}
+  frame.style.width='390px';frame.style.height='844px';await raf();await raf()
+  await click('.kiln-footer button');await wait(()=>doc().querySelector('.collection-page'));check(doc().querySelector('.collection-page').dataset.patternKey===s.finalPattern.sourceKey,'07结果页继承同一器物来源')
+  await click('.collection-page .clay-back');await wait(()=>doc().querySelector('.kiln-canvas')?.dataset.kilnPhase==='revealed');c=doc().querySelector('.kiln-canvas');check(c.dataset.vesselType==='cup'&&Number(c.dataset.firingProgress)===1,'返回06保留烧成后的材质，不再次烧制')
+  check(!doc().body.innerText.match(/℃|小时|100%|烧制成功|Perfect/),'页面没有未经确认的工艺参数或游戏奖励')
+  out.textContent+='\n全部通过。触摸为合成 Pointer Events，真实手机仍待测试。'
+ }catch(e){out.textContent+='\n失败：'+e.message;console.error(e)}finally{if(previous===null)localStorage.removeItem(key);else localStorage.setItem(key,previous);run.disabled=false}
+}
+</script></html>
+

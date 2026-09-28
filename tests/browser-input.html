@@ -1,0 +1,82 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>03 渐生纹层 · 浏览器验收</title>
+<style>body{font:14px system-ui;background:#f3eee5;color:#30271f;margin:24px}button{padding:12px 20px}pre{white-space:pre-wrap}iframe{width:390px;height:844px;border:1px solid #cbbda8;display:block;margin-top:20px}.snapshots{display:flex;gap:12px}.snapshots figure{margin:0;background:#e7ddcd}.snapshots img{width:240px;display:block}.snapshots figcaption{padding:10px}</style>
+<h1>03 渐生纹层 · 浏览器验收</h1><p>使用独立测试窗口运行。测试结束恢复本机原记录；不进入生产构建。</p>
+<button id="run">运行浏览器验收</button><pre id="result" role="status">尚未运行</pre><div class="snapshots"></div><iframe id="app" title="手机尺寸工作台" src="/#/clay"></iframe>
+<script type="module">
+const iframe=document.querySelector('#app'),output=document.querySelector('#result'),button=document.querySelector('#run'),key='jiaoyiwen.workshop.v1'
+const raf=()=>new Promise(resolve=>requestAnimationFrame(resolve))
+const wait=async predicate=>{const start=performance.now();while(!predicate()){if(performance.now()-start>9000)throw Error('等待页面状态超时');await raf()}await raf()}
+const doc=()=>iframe.contentDocument
+const check=(value,label)=>{if(!value)throw Error(label);output.textContent+='\n通过：'+label}
+const click=async selector=>{await wait(()=>doc().querySelector(selector)&&!doc().querySelector(selector).disabled);doc().querySelector(selector).click();await raf()}
+button.onclick=async()=>{
+  button.disabled=true;output.textContent='正在运行…';document.querySelector('.snapshots').replaceChildren()
+  const previous=localStorage.getItem(key);let observer
+  try{
+    iframe.contentWindow.location.hash='/clay';await wait(()=>doc().querySelector('.clay-palette'))
+    for(const item of [...doc().querySelectorAll('.clay-choice[aria-pressed="true"]')]){item.click();await raf()}
+    await click('.clay-choice[aria-label="胎白"]');await click('.clay-choice[aria-label="赤陶"]');await click('.start-twisting')
+    await wait(()=>doc().querySelector('.twist-canvas')?.dataset.modelKey)
+    let canvas=doc().querySelector('.twist-canvas')
+    const capture=label=>{const figure=document.createElement('figure'),image=document.createElement('img'),caption=document.createElement('figcaption');image.src=canvas.toDataURL();image.alt=label;caption.textContent=label;figure.append(image,caption);document.querySelector('.snapshots').append(figure)}
+    check(canvas.dataset.materialColors==='#dfcfb3,#ad6647','继承两种所选泥色')
+    check(canvas.dataset.layerCount==='2'&&Number(canvas.dataset.interactionProgress)===0,'新制作只有两块宽色层，无预生成细纹')
+    check(!doc().querySelector('.pattern-preview')&&doc().querySelectorAll('.twist-workspace canvas').length===1,'预览窗口完全删除，只保留主泥坯')
+    check(!doc().querySelector('.twist-footer button'),'初始不呈现底部完成按钮')
+    check([...doc().querySelectorAll('.craft-actions button')].map(b=>b.textContent).join('/')==='轻绞/折合','辅助动作只显示轻绞、折合，无数字')
+    check(doc().querySelector('.twist-heading p').textContent==='顺着手，让泥慢慢相遇。','顶部使用精简文案')
+    capture('初始：两块宽色层')
+    let noticeVisits=0,noticeStart=0,noticeEnd=0
+    observer=new MutationObserver(()=>{if(doc().querySelector('.fusion-notice span')){noticeVisits++;noticeStart=performance.now()}else if(noticeStart)noticeEnd=performance.now()})
+    observer.observe(doc().querySelector('.fusion-notice'),{childList:true})
+    const emit=(type,p,id=71)=>{const r=canvas.getBoundingClientRect();canvas.dispatchEvent(new iframe.contentWindow.PointerEvent(type,{bubbles:true,cancelable:true,pointerType:'touch',pointerId:id,isPrimary:true,button:0,buttons:type==='pointerup'?0:1,pressure:.65,clientX:r.left+p.x*r.width,clientY:r.top+p.y*r.height}))}
+    const stroke=async points=>{
+      emit('pointerdown',points[0])
+      for(let j=1;j<points.length;j++)for(let i=1;i<=26;i++){
+        emit('pointermove',{x:points[j-1].x+(points[j].x-points[j-1].x)*i/26,y:points[j-1].y+(points[j].y-points[j-1].y)*i/26});await raf();await raf()
+      }
+      emit('pointerup',points.at(-1));await raf()
+    }
+    const before=canvas.dataset.modelKey,scroll=iframe.contentWindow.scrollY
+    await stroke([{x:.48,y:.44},{x:.55,y:.60}])
+    check(canvas.dataset.lastInput==='touch'&&canvas.dataset.modelKey!==before,'触摸拖动实际改变泥体和色层坐标')
+    check(Number(canvas.dataset.interactionProgress)<.3&&canvas.dataset.layerCount==='2','第一次轻拉后仍为简单宽色层')
+    check(!doc().querySelector('.twist-footer button'),'交互不足时按钮仍不出现')
+    await stroke([{x:.55,y:.60},{x:.73,y:.43},{x:.28,y:.60},{x:.66,y:.46}])
+    check(iframe.contentWindow.scrollY===scroll&&iframe.contentWindow.getComputedStyle(canvas).touchAction==='none','连续回拉不触发页面滚动')
+    await wait(()=>doc().querySelector('.twist-footer button'))
+    check(doc().querySelector('.twist-footer button').textContent==='看看里面的纹','达到阈值后出现新的主按钮文案')
+    check(iframe.contentWindow.getComputedStyle(doc().querySelector('.twist-footer button')).animationName==='clay-invitation','主按钮使用缓慢淡入动画')
+    check(Number(canvas.dataset.layerCount)>2&&Number(canvas.dataset.layerCount)<=5,'中段只增加少量局部宽色层')
+    capture('拉揉之后：宽层逐渐折入')
+    const hold={x:.5,y:.52},pressBefore=Number(canvas.dataset.pressCount)
+    emit('pointerdown',hold);await wait(()=>Number(canvas.dataset.pressCount)===pressBefore+1);emit('pointerup',hold)
+    await wait(()=>!doc().querySelector('.craft-actions button').disabled)
+    emit('pointerdown',hold);emit('pointercancel',hold);const cancelTime=performance.now();await wait(()=>performance.now()-cancelTime>500)
+    check(Number(canvas.dataset.pressCount)===pressBefore+1,'长按压合一次，取消后不会滞后触发')
+    for(let i=1;i<=5;i++){await click('.craft-actions button:first-child');await wait(()=>!doc().querySelector('.twist-footer button').disabled)}
+    for(let i=1;i<=3;i++){await click('.craft-actions button:last-child');await wait(()=>!doc().querySelector('.twist-footer button').disabled)}
+    check(Number(canvas.dataset.interactionProgress)>=.65&&Number(canvas.dataset.layerCount)>=6,'后段局部细层逐步形成')
+    capture('继续叠压：局部细层与宽层并存')
+    check(noticeVisits===1&&noticeEnd-noticeStart>=900&&noticeEnd-noticeStart<1600&&!doc().querySelector('.fusion-notice span'),'融合提示仅出现一次，约1秒自动消失')
+    for(const[width,height]of[[390,844],[375,812],[430,932]]){
+      iframe.style.width=width+'px';iframe.style.height=height+'px';await raf();await raf();await raf()
+      const root=doc().documentElement,footer=doc().querySelector('.twist-footer').getBoundingClientRect(),controls=doc().querySelector('.craft-actions').getBoundingClientRect()
+      check(Math.abs(iframe.contentWindow.innerWidth-width)<=1&&Math.abs(iframe.contentWindow.innerHeight-height)<=1&&root.scrollWidth<=width+1&&root.scrollHeight<=height+1&&footer.bottom<=height+1&&controls.bottom<footer.top,`${width}×${height} 无裁切、遮挡或横向滚动`)
+    }
+    iframe.style.width='390px';iframe.style.height='844px';await raf();await raf()
+    const fingerprint=canvas.dataset.modelKey,saved=JSON.parse(localStorage.getItem(key))
+    check(saved.twistCount===5&&saved.foldCount===3&&saved.pressCount===1&&saved.interactionProgress>=.65&&saved.reverseFoldCount>0,'后台保存绞折次数、进度、回拉和压合，不显示数字界面')
+    observer.disconnect()
+    await new Promise(resolve=>{iframe.addEventListener('load',resolve,{once:true});iframe.contentWindow.location.reload()})
+    await wait(()=>doc().querySelector('.twist-canvas')?.dataset.modelKey===fingerprint)
+    check(!doc().querySelector('.fusion-notice span'),'刷新精确恢复色层，已出现过的融合提示不重复')
+    await click('.twist-footer button');await wait(()=>doc().querySelector('.reveal-page'))
+    check(JSON.parse(localStorage.getItem(key)).generatedPattern?.algorithmVersion===4,'完成进入04开纹，03的同源版本4快照保留')
+    await click('.reveal-page .clay-back');await wait(()=>doc().querySelector('.twist-canvas')?.dataset.modelKey===fingerprint)
+    output.textContent+='\n全部通过。触摸为浏览器合成 Pointer Events，真机手感仍需实际手机确认。'
+  }catch(error){output.textContent+='\n失败：'+error.message;console.error(error)}
+  finally{observer?.disconnect();if(previous===null)localStorage.removeItem(key);else localStorage.setItem(key,previous);button.disabled=false}
+}
+</script></html>
+

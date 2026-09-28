@@ -1,0 +1,61 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>05 塑器 · 浏览器验收</title>
+<style>body{margin:24px;background:#f1ebdf;color:#514135;font:14px system-ui}button{padding:10px 16px;margin-right:8px}pre{white-space:pre-wrap}.shots{display:flex;gap:12px}.shots img{width:160px}figure{margin:0}iframe{display:block;width:390px;height:844px;border:0;margin-top:20px}body.phone{margin:0}body.phone> :not(iframe){display:none}body.phone iframe{margin:0}</style>
+<h1>05 塑器 · 浏览器验收</h1><button id="run">运行塑器验收</button><button id="phone">仅查看手机效果</button><pre id="result" role="status">尚未运行</pre><div class="shots"></div><iframe id="app" title="手机塑器工作台" src="/#/clay"></iframe>
+<script type="module">
+import {createWorkshopState,toggleClay,saveOperations,saveFinalPattern} from '/src/state/workshopModel.ts'
+import {createFinalPattern} from '/src/features/reveal/pattern.ts'
+import {marblingConfig} from '/src/config/marbling.ts'
+const frame=document.querySelector('#app'),out=document.querySelector('#result'),run=document.querySelector('#run'),key='jiaoyiwen.workshop.v1';document.querySelector('#phone').onclick=()=>{document.body.classList.add('phone');window.scrollTo(0,0)}
+const raf=()=>new Promise(r=>requestAnimationFrame(r)),doc=()=>frame.contentDocument
+const wait=async(fn,ms=12000)=>{const start=performance.now();while(!fn()){if(performance.now()-start>ms)throw Error('等待状态超时');await raf()}await raf()}
+const check=(ok,label)=>{if(!ok)throw Error(label);out.textContent+='\n通过：'+label}
+const click=async s=>{await wait(()=>doc().querySelector(s));doc().querySelector(s).click();await raf()}
+const load=async hash=>{await new Promise(r=>{frame.addEventListener('load',r,{once:true});frame.src='/?shape-test='+Date.now()+hash})}
+const emit=(canvas,type,p,id=1,kind='touch')=>{const r=canvas.getBoundingClientRect();canvas.dispatchEvent(new frame.contentWindow.PointerEvent(type,{bubbles:true,cancelable:true,pointerType:kind,pointerId:id,isPrimary:id===1,button:0,buttons:type==='pointerup'?0:1,clientX:r.left+p.x*r.width,clientY:r.top+p.y*r.height}))}
+const stroke=async(canvas,a,b,kind='touch',cancel=false)=>{emit(canvas,'pointerdown',a,1,kind);for(let i=1;i<=28;i++){emit(canvas,'pointermove',{x:a.x+(b.x-a.x)*i/28,y:a.y+(b.y-a.y)*i/28},1,kind);await raf()}emit(canvas,cancel?'pointercancel':'pointerup',b,1,kind);await raf();await raf()}
+const bounds=c=>JSON.parse(c.dataset.bounds),center=c=>{const b=bounds(c);return{x:.5,y:(b.top+b.bottom)/2}}
+run.onclick=async()=>{
+ const previous=localStorage.getItem(key);run.disabled=true;out.textContent='正在运行…';document.querySelector('.shots').replaceChildren()
+ try{
+  let s=toggleClay(toggleClay(createWorkshopState(),'ivory'),'terracotta');s.interactionSeed=137
+  const ops=[];for(let j=1;j<5;j++){for(let i=0;i<16;i++)ops.push({kind:'drag',from:{x:.35+i*.015,y:.43+Math.sin(i*.25)*.12},to:{x:.365+i*.015,y:.43+Math.sin((i+1)*.25)*.12},pressure:.6,time:i*20,strokeId:j,pointerType:'touch'});ops.push({kind:'twist'});if(j<4)ops.push({kind:'fold'})}
+  s=saveOperations(s,ops,{seed:137,algorithmVersion:marblingConfig.version,operationCount:ops.length,imageDataUrl:'data:image/png;base64,AAAA',width:384,height:384});s=saveFinalPattern(s,createFinalPattern(s));localStorage.setItem(key,JSON.stringify(s))
+  await load('#/reveal');await wait(()=>doc().querySelector('.reveal-footer button'));await click('.reveal-footer button');await wait(()=>doc().querySelector('.shape-canvas')?.dataset.phase)
+  let c=doc().querySelector('.shape-canvas');const recipe=JSON.stringify(s.finalPattern)
+  const capture=label=>{const f=document.createElement('figure'),im=document.createElement('img'),caption=document.createElement('figcaption');im.src=c.toDataURL();im.alt=label;caption.textContent=label;f.append(im,caption);document.querySelector('.shots').append(f)}
+  check(c.dataset.renderer==='webgl'&&c.dataset.sourceKey===s.finalPattern.sourceKey,'04→05 使用同一 finalPattern 启动 WebGL 工作台')
+  check(c.dataset.progress==='0'&&!doc().querySelector('.shape-footer button'),'进入时是泥坯，无入窑按钮');capture('初始泥坯')
+  const start=center(c),scroll=frame.contentWindow.scrollY
+  await stroke(c,{x:.05,y:.1},{x:.05,y:.0});check(c.dataset.progress==='0','泥坯外空白拖动不会误塑形')
+  await stroke(c,start,{x:start.x,y:start.y-.19});const mid=Number(c.dataset.progress)
+  check(mid>.3&&mid<.6,'向上托起产生连续中间形态，松手保持');capture('托起途中')
+  await stroke(c,center(c),{x:.5,y:center(c).y-.1},'touch',true);check(Math.abs(Number(c.dataset.progress)-mid)<.001,'触摸取消回到本次拖动前形态')
+  const midway=JSON.parse(localStorage.getItem(key));check(Math.abs(midway.shapeDraft.progress-mid)<.001,'中途松手后保存塑形进度')
+  await load('#/shape');await wait(()=>doc().querySelector('.shape-canvas')?.dataset.phase);c=doc().querySelector('.shape-canvas');check(Math.abs(Number(c.dataset.progress)-mid)<.001,'刷新恢复中途泥坯和同一纹样')
+  await stroke(c,center(c),{x:.5,y:.02});await wait(()=>c.dataset.progress==='1');capture('完整茶盏')
+  check(!doc().querySelector('.shape-footer button'),'成形后尚未观察，不提前出现入窑按钮')
+  const formedAt=performance.now();await wait(()=>!doc().querySelector('.shape-formed').classList.contains('is-visible'));check(performance.now()-formedAt>=1000,'成形提示约1.2秒后弱化')
+  await stroke(c,center(c),{x:.75,y:center(c).y},'mouse');await wait(()=>doc().querySelector('.shape-footer button'));check(c.dataset.observed==='true','左右拖动观察后才出现送它入窑')
+  const angle=Number(c.dataset.rotation),at=performance.now();await wait(()=>performance.now()-at>350);check(Math.abs(Number(c.dataset.rotation)-angle)>.001,'松手后有轻微阻尼惯性')
+  check(frame.contentWindow.scrollY===scroll&&frame.contentWindow.getComputedStyle(c).touchAction==='none','塑形和旋转不引起页面滚动')
+  for(const index of[1,2]){
+    await click(`.vessel-names button:nth-child(${index+1})`);await wait(()=>Number(c.dataset.progress)===0);const t=performance.now();await wait(()=>performance.now()-t>450)
+    check(!doc().querySelector('.shape-footer button'),'更换器型回到泥坯，并重置观察资格')
+    await stroke(c,center(c),{x:.5,y:.02});await wait(()=>c.dataset.progress==='1');capture(index===1?'杯':'盘')
+    check(c.dataset.vesselType===(index===1?'cup':'plate'),'不同器型均由托起手势形成')
+  }
+  await stroke(c,center(c),{x:.75,y:center(c).y});await wait(()=>doc().querySelector('.shape-footer button'))
+  check(Number(c.dataset.dpr)<=1.75&&Number(c.dataset.triangles)<12000,'DPR 和网格三角面数量受限')
+  for(const[width,height]of[[390,844],[375,812],[430,932]]){frame.style.width=width+'px';frame.style.height=height+'px';await raf();await raf();await raf();const root=doc().documentElement,footer=doc().querySelector('.shape-footer').getBoundingClientRect();check(root.scrollWidth<=width+1&&root.scrollHeight<=height+1&&footer.bottom<=height+1,`${width}×${height} 主体与底部按钮完整可用`)}
+  frame.style.width='390px';frame.style.height='844px';await raf();await raf()
+  check(JSON.stringify(JSON.parse(localStorage.getItem(key)).finalPattern)===recipe,'塑形、切换器型与旋转均不改写 finalPattern')
+  await click('.shape-footer button');await wait(()=>doc().querySelector('.kiln-page'));check(doc().querySelector('.kiln-page').dataset.patternKey===s.finalPattern.sourceKey,'06入窑继续使用同一纹样与器型')
+  await click('.kiln-page .clay-back');await wait(()=>doc().querySelector('.shape-canvas')?.dataset.observed==='true');c=doc().querySelector('.shape-canvas');check(c.dataset.vesselType==='plate'&&c.dataset.progress==='1','从06返回保留已塑成且观察过的器物')
+  await click('.vessel-names button:first-child');await wait(()=>c.dataset.progress==='0');const t=performance.now();await wait(()=>performance.now()-t>450)
+  await stroke(c,center(c),{x:.25,y:center(c).y});await wait(()=>c.dataset.vesselType==='cup');check(c.dataset.progress==='0','左右轻扫只换器型，不直接生成成品')
+  const waitSettle=performance.now();await wait(()=>performance.now()-waitSettle>450);await stroke(c,center(c),{x:.5,y:.02});await wait(()=>c.dataset.progress==='1');await stroke(c,center(c),{x:.72,y:center(c).y});await wait(()=>c.dataset.observed==='true')
+  const settle=performance.now();await wait(()=>performance.now()-settle>1500)
+  out.textContent+='\n全部通过。触摸为合成 Pointer Events，真机性能仍待实测。'
+ }catch(e){out.textContent+='\n失败：'+e.message;console.error(e)}finally{if(previous===null)localStorage.removeItem(key);else localStorage.setItem(key,previous);run.disabled=false}
+}
+</script></html>

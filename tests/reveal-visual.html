@@ -1,0 +1,17 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>开纹 · 切片转面视觉验收</title>
+<style>body{margin:0;padding:28px;background:#f1ebdf;color:#544130;font:14px 'Microsoft YaHei',sans-serif}h1{font:23px SimSun;margin:0 0 8px}p{color:#907a64;margin-bottom:24px}.phases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:960px}figure{margin:0}canvas{width:100%;display:block;background:radial-gradient(ellipse at 50% 64%,#e6dbca70,transparent 70%)}figcaption{text-align:center;padding:10px;font:14px SimSun}</style>
+<h1>任意位置，划开这一块泥。</h1><p>左侧落刀示例 · 切口跟随手势 · 保留同一截面纹样</p><div class="phases"></div>
+<script type="module">
+import {createWorkshopState,toggleClay,saveOperations} from '/src/state/workshopModel.ts'
+import {createFinalPattern} from '/src/features/reveal/pattern.ts'
+import {renderReveal} from '/src/features/reveal/render.ts'
+import {marblingConfig} from '/src/config/marbling.ts'
+let s=toggleClay(toggleClay(createWorkshopState(),'ivory'),'terracotta');s.interactionSeed=137
+const ops=[];for(let strokeId=1;strokeId<6;strokeId++){for(let i=0;i<12;i++)ops.push({kind:'drag',from:{x:.35+i*.02,y:.43+Math.sin(i*.3)*.12},to:{x:.37+i*.02,y:.43+Math.sin((i+1)*.3)*.12},pressure:.6,time:i*20,strokeId,pointerType:'touch'});ops.push({kind:'twist'});if(strokeId<4)ops.push({kind:'fold'})}
+s=saveOperations(s,ops,{seed:137,algorithmVersion:marblingConfig.version,operationCount:ops.length,imageDataUrl:'data:image/png;base64,AAAA',width:384,height:384})
+const recipe=createFinalPattern(s)
+for(const[progress,label]of[[0,'完整泥坯'],[.38,'左侧落刀 · 就地分离'],[.62,'截面转向用户'],[1,'胎内纹样显露']]){
+ const figure=document.createElement('figure'),canvas=document.createElement('canvas'),caption=document.createElement('figcaption');canvas.width=440;canvas.height=660;canvas.setAttribute('aria-label',label);caption.textContent=label;figure.append(canvas,caption);document.querySelector('.phases').append(figure)
+ const ctx=canvas.getContext('2d');ctx.scale(2,2);renderReveal(ctx,recipe,220,330,{progress,cutX:.30,trace:[],zoom:1,pan:{x:0,y:0},showGuide:progress===0})
+}
+</script></html>

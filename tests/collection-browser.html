@@ -1,0 +1,63 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>07 我的这一纹 · 浏览器验收</title>
+<style>body{margin:24px;background:#f1ebdf;color:#514135;font:14px system-ui}button{padding:10px 16px;margin-right:8px}pre{white-space:pre-wrap}iframe{display:block;width:390px;height:844px;border:0;margin-top:20px}body.phone{margin:0}body.phone>:not(iframe){display:none}body.phone iframe{margin:0}.proof img{width:216px}</style>
+<h1>07 我的这一纹 · 浏览器验收</h1><button id="run">运行作品页验收</button><button id="phone">仅查看手机效果</button><button id="top">回到作品顶部</button><pre id="result" role="status">尚未运行</pre><div class="proof"></div><iframe id="app" title="手机作品页" src="/#/clay"></iframe>
+<script type="module">
+import {createWorkshopState,toggleClay,saveOperations,saveFinalPattern,saveShapeDraft,saveKilnDraft} from '/src/state/workshopModel.ts'
+import {createFinalPattern} from '/src/features/reveal/pattern.ts'
+import {initialShape} from '/src/features/shaping/model.ts'
+import {initialKiln} from '/src/features/kiln/model.ts'
+import {marblingConfig} from '/src/config/marbling.ts'
+const frame=document.querySelector('#app'),out=document.querySelector('#result'),run=document.querySelector('#run'),key='jiaoyiwen.workshop.v1';document.querySelector('#phone').onclick=()=>{document.body.classList.add('phone');window.scrollTo(0,0)};document.querySelector('#top').onclick=()=>frame.contentWindow.scrollTo(0,0)
+const raf=()=>new Promise(r=>requestAnimationFrame(r)),doc=()=>frame.contentDocument
+const wait=async(fn,ms=18000)=>{const at=performance.now();while(!fn()){if(performance.now()-at>ms)throw Error('等待状态超时');await raf()}await raf()}
+const check=(ok,label)=>{if(!ok)throw Error(label);out.textContent+='\n通过：'+label}
+const click=async s=>{await wait(()=>doc().querySelector(s));doc().querySelector(s).click();await raf();await raf()}
+const load=hash=>new Promise(r=>{frame.addEventListener('load',r,{once:true});frame.src='/?collection-test='+Date.now()+hash})
+const emit=(canvas,type,p,id=1,kind='touch')=>{const r=canvas.getBoundingClientRect();canvas.dispatchEvent(new frame.contentWindow.PointerEvent(type,{bubbles:true,cancelable:true,pointerType:kind,pointerId:id,isPrimary:id===1,button:0,buttons:type==='pointerup'?0:1,clientX:r.left+p.x*r.width,clientY:r.top+p.y*r.height}))}
+const stroke=async(canvas,a,b,kind='touch')=>{emit(canvas,'pointerdown',a,1,kind);for(let i=1;i<=20;i++){emit(canvas,'pointermove',{x:a.x+(b.x-a.x)*i/20,y:a.y+(b.y-a.y)*i/20},1,kind);await raf()}emit(canvas,'pointerup',b,1,kind);await raf()}
+run.onclick=async()=>{
+ const previous=localStorage.getItem(key),previousArchive=localStorage.getItem('myPatterns');run.disabled=true;out.textContent='正在运行…'
+ try{
+  let s=toggleClay(toggleClay(createWorkshopState(),'ivory'),'terracotta');s.interactionSeed=137
+  const ops=[];for(let j=1;j<5;j++){for(let i=0;i<16;i++)ops.push({kind:'drag',from:{x:.35+i*.015,y:.43+Math.sin(i*.25)*.12},to:{x:.365+i*.015,y:.43+Math.sin((i+1)*.25)*.12},pressure:.6,time:i*20,strokeId:j,pointerType:'touch'});ops.push({kind:'twist'});if(j<4)ops.push({kind:'fold'})}
+  s=saveOperations(s,ops,{seed:137,algorithmVersion:marblingConfig.version,operationCount:ops.length,imageDataUrl:'data:image/png;base64,AAAA',width:384,height:384});s=saveFinalPattern(s,createFinalPattern(s));s=saveShapeDraft(s,{...initialShape(s.finalPattern.sourceKey),vesselType:'bowl',progress:1,observed:true,rotation:.4});s=saveKilnDraft(s,{...initialKiln(s.shapeDraft),phase:'ready'});localStorage.setItem(key,JSON.stringify(s))
+  const pattern=JSON.stringify(s.finalPattern)
+  await load('#/kiln');await wait(()=>doc().querySelector('.kiln-canvas')?.dataset.kilnPhase==='ready');let c=doc().querySelector('.kiln-canvas');const ids=[c.dataset.sceneId,c.dataset.meshId,c.dataset.cameraId].join()
+  await stroke(c,{x:.5,y:.82},{x:.5,y:.4});await wait(()=>c.dataset.kilnPhase==='revealed');await stroke(c,{x:.5,y:.6},{x:.73,y:.6});await wait(()=>doc().querySelector('.kiln-footer button'))
+  await click('.kiln-footer button');await wait(()=>c.dataset.collectionReady==='true'&&doc().querySelector('[data-experience-id]')?.dataset.experienceId.startsWith('JGX-'))
+  check(c===doc().querySelector('.shape-canvas')&&[c.dataset.sceneId,c.dataset.meshId,c.dataset.cameraId].join()===ids,'06→07 原 Canvas、Scene、Camera、Mesh 均保持不变')
+  check(Number(c.dataset.firingProgress)===1&&Number(c.dataset.roughness)<.4&&c.dataset.vesselType==='bowl','同一茶盏保留烧成后的陶瓷材质')
+  let saved=JSON.parse(localStorage.getItem(key));const id=saved.experienceId,date=saved.createdAt
+  check(JSON.stringify(saved.finalPattern)===pattern&&saved.interactionSeed===137&&saved.gesturePath.length===s.gesturePath.length,'完整纹样、两色、种子和手势记录继承')
+  const angle=Number(c.dataset.rotation);await stroke(c,{x:.5,y:.6},{x:.69,y:.6},'mouse');await wait(()=>Math.abs(JSON.parse(localStorage.getItem(key)).kilnDraft.rotation-angle)>.1)
+  check(frame.contentWindow.getComputedStyle(c).touchAction==='none','成品可鼠标转动，触摸区不会滚屏')
+  // Let inertia settle before checking refresh orientation or exporting a still.
+  await new Promise(r=>setTimeout(r,1400));saved=JSON.parse(localStorage.getItem(key));const rotation=saved.kilnDraft.rotation
+  await click('.generate-card');await wait(()=>doc().querySelector('.card-preview img')?.complete)
+  const card=doc().querySelector('.card-preview img'),blob=await fetch(card.src).then(r=>r.blob()),bytes=new Uint8Array(await blob.arrayBuffer())
+  check(card.naturalWidth===1080&&card.naturalHeight===1440&&blob.type==='image/png'&&bytes[0]===137&&bytes[1]===80,'独立排版生成真实 1080×1440 PNG，不是网页截图')
+  check(doc().querySelector('.save-card').download===id+'-我的这一纹.png'&&doc().querySelector('.card-preview p').textContent.includes('长按'),'下载文件名使用稳定纹号，并提供长按图片保存')
+  const data=await new Promise(r=>{const reader=new FileReader();reader.onload=()=>r(reader.result);reader.readAsDataURL(blob)});const proof=document.createElement('img');proof.src=data;proof.alt='实际生成的1080×1440纹卡';document.querySelector('.proof').replaceChildren(proof)
+  check(c===doc().querySelector('.shape-canvas')&&ids===[c.dataset.sceneId,c.dataset.meshId,c.dataset.cameraId].join()&&c.width<1080,'导出复用原渲染器并恢复移动端画布大小')
+  await click('.inspect-pattern');await wait(()=>doc().querySelector('dialog[open]'));const view=doc().querySelector('.pattern-viewport'),pc=view.querySelector('canvas')
+  const before=pc.style.transform;emit(view,'pointerdown',{x:.35,y:.5},1);emit(view,'pointerdown',{x:.65,y:.5},2);emit(view,'pointermove',{x:.85,y:.5},2);emit(view,'pointerup',{x:.85,y:.5},2);emit(view,'pointerup',{x:.35,y:.5},1);await raf()
+  check(pc.style.transform!==before&&Number(pc.style.transform.match(/[0-9.]+/)[0])>1&&doc().body.style.overflow==='hidden','沉浸式纹样支持双指缩放并锁定背景滚动')
+  await click('button[aria-label="收起纹样"]');check(!doc().querySelector('dialog')&&doc().body.style.overflow!=='hidden','关闭看纹后恢复页面滚动')
+  for(const[w,h]of[[390,844],[375,812],[430,932]]){frame.style.width=w+'px';frame.style.height=h+'px';await raf();await raf();await raf();check(doc().documentElement.scrollWidth<=w+1&&doc().querySelector('.card-preview img').getBoundingClientRect().width<w,`${w}×${h} 页面与纹卡无横向溢出`)}
+  frame.style.width='390px';frame.style.height='844px';await load('#/collection');await wait(()=>doc().querySelector('.shape-canvas')?.dataset.collectionReady==='true');c=doc().querySelector('.shape-canvas');saved=JSON.parse(localStorage.getItem(key))
+  check(saved.experienceId===id&&saved.createdAt===date&&JSON.stringify(saved.finalPattern)===pattern&&Math.abs(Number(c.dataset.rotation)-rotation)<.001,'刷新保留同一纹号、日期、纹样和烧成后朝向')
+  await click('.brand-invitation button');await wait(()=>doc().querySelector('.brand-placeholder'));check(!doc().querySelector('a[href^="http"]'),'品牌作品使用占位承接，没有编造商城链接');await click('.brand-placeholder button');await wait(()=>doc().querySelector('.collection-page'))
+  const storageProto=frame.contentWindow.Storage.prototype,originalSet=storageProto.setItem
+  try{storageProto.setItem=function(k,v){if(k==='myPatterns')throw new DOMException('Test quota','QuotaExceededError');return originalSet.call(this,k,v)};await click('.restart-work');check(doc().querySelector('.collection-page')&&JSON.parse(localStorage.getItem(key)).experienceId===id&&doc().querySelector('.collection-status').textContent.includes('无法保存'),'模拟存储已满时不重置当前作品，并明确提示保存失败')}finally{storageProto.setItem=originalSet}
+  await click('.restart-work');await wait(()=>doc().querySelector('.clay-page'));const archives=JSON.parse(localStorage.getItem('myPatterns')),record=archives.find(r=>r.experienceId===id),fresh=JSON.parse(localStorage.getItem(key))
+  check(record&&JSON.stringify(record.finalPattern)===pattern&&record.vesselType==='bowl'&&record.createdAt===date&&record.workshop.gesturePath.length===s.gesturePath.length,'再做一纹先存档当前作品与完整制作数据')
+  check(fresh.experienceId!==id&&fresh.selectedClays.length===0&&fresh.finalPattern===null,'存档后开始新的择泥体验，旧作品没有被覆盖')
+  localStorage.setItem(key,JSON.stringify(record.workshop));await load('#/collection');await wait(()=>doc().querySelector('.shape-canvas')?.dataset.collectionReady==='true')
+  out.textContent+='\n全部通过。触摸为合成 Pointer Events；实际手机及微信长按仍需真机验收。'
+ }catch(e){out.textContent+='\n失败：'+e.message;console.error(e)}finally{run.disabled=false}
+ // Deliberately isolated test origin. Use this cleanup control after visual review.
+ let cleanup=document.querySelector('#cleanup');if(!cleanup){cleanup=document.createElement('button');cleanup.id='cleanup';cleanup.textContent='还原测试前存储';document.body.insertBefore(cleanup,frame)}cleanup.onclick=async()=>{await load('#/clay');if(previous===null)localStorage.removeItem(key);else localStorage.setItem(key,previous);if(previousArchive===null)localStorage.removeItem('myPatterns');else localStorage.setItem('myPatterns',previousArchive);out.textContent+='\n测试前存储已还原。'}
+}
+</script></html>
+
+

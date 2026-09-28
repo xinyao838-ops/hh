@@ -1,0 +1,16 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>泥体融合 · 视觉验收</title>
+<style>body{margin:0;background:#ece5d8;color:#514135;font:14px system-ui}main{display:grid;grid-template-columns:repeat(3,350px);gap:16px;padding:24px}section{background:#f5f0e7;border-radius:10px;overflow:hidden}h2{font:18px serif;margin:22px 22px 0}canvas{width:350px;height:340px;display:block}p{margin:0 22px 20px;font-size:12px}#metrics{padding:0 24px}</style>
+<main></main><p id="metrics"></p>
+<script type="module">
+import {replay,interactionProgress} from '/src/features/marbling/engine.ts'
+import {renderClay} from '/src/features/marbling/render.ts'
+const pull=(from,to,n=24)=>Array.from({length:n},(_,i)=>({kind:'drag',from:{x:from.x+(to.x-from.x)*i/n,y:from.y+(to.y-from.y)*i/n},to:{x:from.x+(to.x-from.x)*(i+1)/n,y:from.y+(to.y-from.y)*(i+1)/n},pressure:.65,time:i*17,strokeId:1,pointerType:'touch'}))
+const encounter=pull({x:.45,y:.35},{x:.50,y:.63})
+const knead=[...encounter,...pull({x:.50,y:.63},{x:.72,y:.43}),...pull({x:.72,y:.43},{x:.28,y:.59}),...pull({x:.28,y:.59},{x:.65,y:.44})]
+const originalStages=[['起始 · 两种泥',[]],['接触 · 局部压合',encounter],['拉揉 · 共用外轮廓',knead],['再折回 · 纹层叠加',[...knead,{kind:'fold'}]],['绞合 · 色层卷入',[...knead,{kind:'fold'},{kind:'twist'}]],['按压 · 局部展宽',[...knead,{kind:'fold'},{kind:'twist'},{kind:'press',point:{x:.5,y:.5},strength:.85}]]]
+const stages=[['起始 · 仅两种宽色层',[]],['轻拉 · 宽层随泥变形',encounter],['回揉 · 宽层开始折入',[...knead,{kind:'fold'}]],['继续折合 · 局部叠层',[...knead,{kind:'fold'},{kind:'twist'},{kind:'fold'}]],['反复绞合 · 局部细纹',[...knead,...Array(4).fill({kind:'twist'}),...Array(2).fill({kind:'fold'})]],['压合 · 仍保留宽色层',[...knead,...Array(5).fill({kind:'twist'}),...Array(3).fill({kind:'fold'}),{kind:'press',point:{x:.5,y:.5},strength:.85}]]];
+const times=[]
+for(const [title,ops] of stages){const section=document.createElement('section'),h=document.createElement('h2'),canvas=document.createElement('canvas'),p=document.createElement('p');h.textContent=title;canvas.width=700;canvas.height=680;const model=replay(173,ops);const ctx=canvas.getContext('2d');ctx.scale(2,2);const start=performance.now();renderClay(ctx,model,['#dfcfb3','#ad6647'],350,340);times.push(performance.now()-start);p.textContent=`交互进度 % ${(interactionProgress(model)*100).toFixed(0)} · 已黏合 ${(model.columns.reduce((s,c)=>s+c.bond,0)/57*100).toFixed(0)}%`;section.append(h,canvas,p);document.querySelector('main').append(section)}
+document.querySelector('#metrics').textContent='各阶段绘制耗时（ms）：'+times.map(n=>n.toFixed(1)).join(' / ')
+</script></html>
+

@@ -1,0 +1,27 @@
+name: Verify H5 production build
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - run: npx --yes pnpm@11.25.0 install --frozen-lockfile
+      - run: npm run test
+      - run: npm run build
+      - run: npm run check:production
+# Vercel's Git integration deploys this same repository. No second CLI deploy
+# workflow, project creation, or VERCEL_TOKEN is needed for ordinary updates.

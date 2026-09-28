@@ -1,0 +1,31 @@
+.twist-page { width: 100%; max-width: 550px; margin: 0 auto; min-height: 100svh; padding: max(18px, env(safe-area-inset-top)) 26px max(24px, env(safe-area-inset-bottom)); overflow: hidden; }
+.twist-heading { text-align: center; padding-top: 18px; }
+.twist-heading h1 { font: 28px/1.5 var(--font-serif); letter-spacing: .02em; text-wrap: balance; }
+.twist-heading p { margin-top: 9px; font: 15px/1.8 var(--font-serif); color: var(--color-muted); }
+.twist-workspace { position: relative; margin: 22px -7px 0; border-radius: 12px 9px 14px 10px; background: radial-gradient(ellipse at 42% 38%, #eee6d9, #e2d7c7); box-shadow: inset 0 1px 0 #fff8e9, 0 3px 0 #d4c7b5, 0 12px 24px #51392008; }
+.twist-canvas { display: block; width: 100%; height: clamp(330px, 46svh, 430px); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; overscroll-behavior: contain; -webkit-tap-highlight-color: transparent; border-radius: inherit; }
+.twist-canvas.is-dragging { cursor: grabbing; }
+.twist-clay-names { position: absolute; top: 19px; left: 17px; font: 12px var(--font-serif); letter-spacing: .12em; color: var(--color-muted); pointer-events: none; }
+.twist-clay-names i { font-style: normal; margin: 0 5px; color: #a99a85; }
+.fusion-notice { height: 38px; margin: 8px 0 0; display: grid; place-items: center; font: 14px var(--font-serif); color: var(--color-muted); pointer-events: none; }
+.fusion-notice span { animation: clay-notice 1s ease both; }
+.twist-storage { text-align: center; font-size: 12px; color: var(--color-muted); }
+.craft-actions { display: flex; justify-content: center; align-items: center; gap: 18px; color: #af9e86; }
+.craft-actions button { min-height: 44px; min-width: 68px; padding: 6px 12px; border: 0; color: var(--color-muted); background: transparent; font: 14px var(--font-serif); letter-spacing: .14em; touch-action: manipulation; transition: transform .15s, color .2s; }
+.craft-actions button:active:not(:disabled) { transform: scale(.96); color: var(--color-brown); }
+.craft-actions button:disabled { opacity: .38; cursor: default; }
+.twist-footer { margin-top: auto; padding-top: 21px; }
+.twist-footer .start-twisting span { font-size: 17px; letter-spacing: .1em; }
+.twist-footer .start-twisting { animation: clay-invitation .8s ease both; }
+@keyframes clay-invitation { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes clay-notice { 0% { opacity: 0; } 20%, 72% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .fusion-notice span, .twist-footer .start-twisting { animation: none; } }
+.twist-page button { appearance: none; -webkit-appearance: none; -webkit-tap-highlight-color: transparent; -webkit-text-fill-color: currentColor; outline: none; }
+.twist-page button:focus-visible { outline: 2px solid var(--color-fire); outline-offset: 3px; }
+.reveal-placeholder { text-align: center; align-items: center; max-width: 520px; margin: auto; }
+.reveal-step { color: var(--color-muted); font-size: 13px; letter-spacing: .15em; padding-top: 15px; }
+.reveal-placeholder section { margin: auto 0; }
+.reveal-placeholder h1 { font: 30px/1.6 var(--font-serif); margin: 24px 0 16px; }
+.reveal-placeholder section p { font: 16px/1.9 var(--font-serif); max-width: 290px; text-wrap: balance; color: var(--color-muted); }
+@media (max-height: 800px) and (max-width: 699px) { .twist-heading { padding-top: 12px; } .twist-heading h1 { font-size: 25px; } .twist-workspace { margin-top: 16px; } .twist-canvas { height: 300px; } .twist-footer { padding-top: 16px; } }
+@media (max-width: 360px) { .twist-page { padding-left: 22px; padding-right: 22px; } .twist-heading h1 { font-size: 23px; } }

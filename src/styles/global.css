@@ -1,0 +1,10 @@
+* { box-sizing: border-box; }
+:root { font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; color: var(--color-ink); background: var(--color-clay); font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; --font-serif: "Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", serif; }
+body { margin: 0; min-width: 280px; }
+body::after { content: ""; position: fixed; inset: 0; z-index: 10; pointer-events: none; background: url('../assets/paper-grain.svg'); opacity: .22; }
+button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+button:focus-visible { outline: 2px solid var(--color-fire); outline-offset: 6px; }
+h1, h2, p { margin: 0; }
+h1:focus { outline: none; }
+::selection { background: var(--color-brown); color: var(--color-clay); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
