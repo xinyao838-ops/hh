@@ -23,5 +23,5 @@ jobs:
       - run: npm run test
       - run: npm run build
       - run: npm run check:production
-# Vercel's Git integration deploys this same repository. No second CLI deploy
-# workflow, project creation, or VERCEL_TOKEN is needed for ordinary updates.
+# This workflow verifies builds only. Production deployment is configured in
+# the hosting provider's Git integration; passing this job is not a release.

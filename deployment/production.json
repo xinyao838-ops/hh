@@ -1,7 +1,14 @@
 {
   "repository": "https://github.com/xinyao838-ops/hh",
   "productionBranch": "main",
-  "vercelProjectName": "",
-  "productionUrl": "",
-  "verifiedPublicProduction": false
+  "hostingProvider": "cloudbase",
+  "hostingProjectId": "jiaoyiwen-h5-d5ghz308o4ca98b5e",
+  "hostingServiceName": "jiaoyiwen-h5",
+  "deployedUrl": "https://jiaoyiwen-h5-jiaoyiwen-h5-d5ghz308o4ca98b5e.webapps.tcloudbase.com/",
+  "vercelProjectName": "jiaoyiwen-h5",
+  "productionUrl": "https://jiaoyiwen-h5-jiaoyiwen-h5-d5ghz308o4ca98b5e.webapps.tcloudbase.com/",
+  "verifiedPublicProduction": true,
+  "verifiedMainlandMobile": true,
+  "verificationScope": "HTTP assets verified; user confirmed mainland 4G/5G homepage and start action. Full mobile flow and export pending.",
+  "automaticDeploymentVerified": false
 }

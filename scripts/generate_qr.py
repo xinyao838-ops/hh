@@ -10,8 +10,10 @@ root = Path(__file__).resolve().parent.parent
 config = json.loads((root / 'deployment' / 'production.json').read_text(encoding='utf-8-sig'))
 url = config.get('productionUrl', '')
 parsed = urlparse(url)
-if config.get('verifiedPublicProduction') is not True or not config.get('vercelProjectName'):
-    raise SystemExit('先确认 Vercel 项目的固定 Production URL，并在 production.json 记录验证结果。禁止使用 Preview 地址。')
+if config.get('verifiedPublicProduction') is not True or not config.get('hostingProvider') or not config.get('hostingProjectId'):
+    raise SystemExit('先确认托管项目和固定正式 HTTPS 域名，并在 production.json 记录验证结果。禁止使用 Preview 或控制台中转地址。')
+if config.get('verifiedMainlandMobile') is not True:
+    raise SystemExit('先用国内手机网络实测正式地址，确认首页及开始制作可用后再生成二维码；完整流程需另外验收。')
 if parsed.scheme != 'https' or not parsed.hostname or '.' not in parsed.hostname or parsed.username or parsed.password or parsed.port or parsed.query or parsed.fragment or parsed.path not in ('', '/'):
     raise SystemExit('正式二维码只接受已验证的公网 HTTPS 根地址。')
 try:
