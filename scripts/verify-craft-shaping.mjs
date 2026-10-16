@@ -7,7 +7,7 @@ const {chromium}=await import(process.env.PLAYWRIGHT_MODULE?pathToFileURL(proces
 const out=path.resolve(process.env.REVEAL_OUTPUT||'artifacts/reveal-flow')
 await fs.mkdir(out,{recursive:true})
 const browser=await chromium.launch({headless:true,...(process.env.BROWSER_EXECUTABLE?{executablePath:process.env.BROWSER_EXECUTABLE}:{}),args:['--enable-unsafe-swiftshader']})
-const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,hasTouch:true,isMobile:true})
+const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,hasTouch:true,isMobile:true})
 const page=await context.newPage(),errors=[],checks=[],events=[]
 page.on('pageerror',e=>errors.push(e.message))
 const base=process.env.H5_URL||'http://127.0.0.1:5173'
@@ -40,7 +40,7 @@ await page.evaluate(()=>{
 })
 const frames=path.join(out,'frames');await fs.mkdir(frames,{recursive:true});const records=[],writes=[];let recording=true
 client.on('Page.screencastFrame',e=>{if(recording){const name=`frame-${String(records.length).padStart(5,'0')}.jpg`;records.push({name,time:e.metadata.timestamp});writes.push(fs.writeFile(path.join(frames,name),Buffer.from(e.data,'base64')))}void client.send('Page.screencastFrameAck',{sessionId:e.sessionId})})
-await client.send('Page.startScreencast',{format:'jpeg',quality:95,maxWidth:390,maxHeight:844,everyNthFrame:1})
+await client.send('Page.startScreencast',{format:'jpeg',quality:95,maxWidth:780,maxHeight:1688,everyNthFrame:1})
 const started=Date.now(),mark=name=>events.push({name,seconds:(Date.now()-started)/1000})
 await wait(700);mark('03真实触控揉拉')
 for(let i=0;i<3;i++){
@@ -100,10 +100,20 @@ async function form(type){
  await page.screenshot({path:path.join(out,'05-'+type+'成形.png')})
 }
 mark('05分两次向上托举并旋转');await form('茶盏');await wait(600)
+for(const type of ['杯','盘']){mark('切换并托起'+type);await page.locator('.vessel-names button').nth(type==='杯'?1:2).click();await wait(650);await form(type)}
+const sceneId=await page.locator('.shape-canvas').getAttribute('data-scene-id')
+mark('完成塑形，进入06入窑');await tap('.shape-footer button');await page.locator('.kiln-page').waitFor();await wait(1000)
+check(await page.locator('.shape-canvas').getAttribute('data-scene-id')===sceneId,'05→06复用同一个Three.js场景')
+await page.screenshot({path:path.join(out,'06同一器物入窑前.png')})
 await client.send('Page.stopScreencast');recording=false;await Promise.all(writes)
 let list='ffconcat version 1.0\n';for(let i=0;i<records.length;i++)list+=`file '${records[i].name}'\nduration ${i+1<records.length?Math.max(.001,records[i+1].time-records[i].time):1}\n`;list+=`file '${records.at(-1).name}'\n`;await fs.writeFile(path.join(frames,'frames.txt'),list)
-// Other shapes use the same real touch path after the continuous recording.
-for(const type of ['杯','盘']){await page.locator('.vessel-names button').nth(type==='杯'?1:2).click();await wait(650);await form(type)}
+await page.locator('.clay-back').click();await page.locator('.shape-page:not(.kiln-page)').waitFor()
+for(const [w,h] of [[375,812],[390,844],[430,932]]){
+ await page.setViewportSize({width:w,height:h});await wait(150)
+ check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.querySelector('.shape-footer').getBoundingClientRect().bottom<=innerHeight+1),`${w}×${h} 05无横向溢出/按钮裁切`)
+ await page.screenshot({path:path.join(out,`05布局-${w}.png`)})
+}
+await page.setViewportSize({width:390,height:844})
 // Media network failure remains local to the modal.
 await page.locator('.clay-back').click();await until(async()=>await phase()==='revealed')
 await page.route('**/media/craft/*.mp4',r=>r.abort())

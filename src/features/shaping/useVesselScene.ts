@@ -11,7 +11,7 @@ export function useVesselScene(canvasRef:RefObject<HTMLCanvasElement|null>,recip
  useEffect(()=>{
   const canvas=canvasRef.current!;let view:ShapingScene|undefined
   const restoredShape=attempt>0?recoveryShape(latest.current,recipe.sourceKey):initial
-  try{performance.mark('vessel-scene-start');view=new ShapingScene(canvas,recipe);view.resize();view.update(restoredShape.vesselType,restoredShape.progress);view.render(restoredShape.rotation);performance.mark('vessel-first-render')}catch{view?.dispose();setScene(null);setError(true);return}
+  try{performance.mark('vessel-scene-start');view=new ShapingScene(canvas,recipe);view.resize();view.update(restoredShape.vesselType,restoredShape.progress);performance.mark('vessel-draw-start');view.render(restoredShape.rotation);performance.mark('vessel-first-render')}catch{view?.dispose();setScene(null);setError(true);return}
   const activeView=view
   setScene(view);setError(false)
   const resize=()=>{if(!activeView.renderer.getContext().isContextLost()){activeView.resize();activeView.render(activeView.mesh.rotation.y)}}

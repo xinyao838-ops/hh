@@ -24,15 +24,18 @@ export class ShapingScene {
   private ray=new THREE.Raycaster()
   private width=1
   private height=1
+  private span=3.15
   private profileCount:number
   private slowFrames=0
   private disposed=false
+  private seamNormal=new THREE.Vector3()
   constructor(private canvas:HTMLCanvasElement,recipe:FinalPattern){
     const memory=(navigator as Navigator & {deviceMemory?:number}).deviceMemory
     const low=(memory!==undefined&&memory<=4)||navigator.hardwareConcurrency<=4
     this.low=low
     this.segments=low?shapingConfig.lowSegments:shapingConfig.segments
     this.renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:!low,powerPreference:'low-power',preserveDrawingBuffer:true})
+    performance.mark('vessel-webgl-created')
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,low?shapingConfig.lowDpr:shapingConfig.maxDpr))
     this.renderer.setClearColor(0,0);this.renderer.outputColorSpace=THREE.SRGBColorSpace
     this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.05
@@ -45,21 +48,22 @@ export class ShapingScene {
     const firedMap=new THREE.CanvasTexture(firedSource);firedMap.colorSpace=THREE.SRGBColorSpace;this.textures.push(firedMap)
     // Matte greenware pigment treatment affects only the presentation texture.
     const pixels=ctx.getImageData(0,0,size,size);let seed=recipe.seed||1
-    const grain=document.createElement('canvas');grain.width=grain.height=size;const gc=grain.getContext('2d')!,noise=gc.createImageData(size,size)
+    const grain=document.createElement('canvas');grain.width=grain.height=128;const gc=grain.getContext('2d')!,noise=gc.createImageData(128,128)
     for(let i=0;i<pixels.data.length;i+=4){seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;const n=(seed>>>0)/4294967296
       const gray=pixels.data[i]*.3+pixels.data[i+1]*.59+pixels.data[i+2]*.11
       for(let c=0;c<3;c++)pixels.data[i+c]=pixels.data[i+c]*.87+gray*.07+190*.06+(n-.5)*2
-      noise.data[i]=noise.data[i+1]=noise.data[i+2]=120+n*15;noise.data[i+3]=255
     }
+    for(let i=0;i<noise.data.length;i+=4){seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;const n=(seed>>>0)/4294967296;noise.data[i]=noise.data[i+1]=noise.data[i+2]=120+n*15;noise.data[i+3]=255}
     ctx.putImageData(pixels,0,0);gc.putImageData(noise,0,0)
     const map=new THREE.CanvasTexture(source);map.colorSpace=THREE.SRGBColorSpace;map.anisotropy=Math.min(4,this.renderer.capabilities.getMaxAnisotropy())
     const bump=new THREE.CanvasTexture(grain);this.textures.push(map,bump)
+    performance.mark('vessel-textures-prepared')
     const initial=vesselProfile('bowl',0);this.profileCount=initial.length
     const geometry=new THREE.LatheGeometry(initial.map(p=>new THREE.Vector2(p.r,p.y)),this.segments)
     const uv=geometry.getAttribute('uv')
     for(let i=0;i<=this.segments;i++)for(let j=0;j<initial.length;j++){const v=materialUV(i/this.segments*Math.PI*2,initial[j].materialRadius);uv.setXY(i*initial.length+j,v.u,v.v)}
     uv.needsUpdate=true
-    this.mesh=new THREE.Mesh(geometry,new THREE.MeshPhysicalMaterial({map,bumpMap:bump,bumpScale:.018,roughness:1,metalness:0,clearcoat:.0001,clearcoatRoughness:.42,reflectivity:.38,color:'#e5e1d9',side:THREE.DoubleSide}))
+    this.mesh=new THREE.Mesh(geometry,new THREE.MeshPhysicalMaterial({map,bumpMap:bump,bumpScale:.012,roughness:1,metalness:0,clearcoat:.0001,clearcoatRoughness:.42,reflectivity:.38,color:'#e5e1d9',side:THREE.DoubleSide}))
     // Greenware uses direct soft light. Build the fired environment only at 06.
     this.mesh.material.envMapIntensity=0;this.mesh.material.envMapRotation.y=.4
     this.mesh.material.onBeforeCompile=shader=>{
@@ -88,15 +92,18 @@ export class ShapingScene {
     canvas.dataset.sceneId=this.scene.uuid;canvas.dataset.meshId=this.mesh.uuid;canvas.dataset.cameraId=this.camera.uuid
     canvas.dataset.quality=low?'low':'standard';canvas.dataset.renderer='webgl';canvas.dataset.sourceKey=recipe.sourceKey;canvas.dataset.textureSize=String(size);canvas.dataset.dpr=String(this.renderer.getPixelRatio())
   }
-  resize(){const r=this.canvas.getBoundingClientRect();this.width=Math.max(1,r.width);this.height=Math.max(1,r.height);this.renderer.setSize(this.width,this.height,false);const span=3.15;this.camera.left=-span/2;this.camera.right=span/2;this.camera.top=span*this.height/this.width/2;this.camera.bottom=-this.camera.top;this.camera.near=.1;this.camera.far=30;this.camera.updateProjectionMatrix()}
+  private frameVessel(){const span=this.span;this.camera.left=-span/2;this.camera.right=span/2;this.camera.top=span*this.height/this.width/2;this.camera.bottom=-this.camera.top;this.camera.near=.1;this.camera.far=30;this.camera.updateProjectionMatrix()}
+  resize(){const r=this.canvas.getBoundingClientRect();this.width=Math.max(1,r.width);this.height=Math.max(1,r.height);this.renderer.setSize(this.width,this.height,false);this.frameVessel()}
   update(type:VesselType,progress:number){
+    // Framing grows continuously with the lift; the wide plate stays inside the table.
+    this.span=3.15-(type==='cup'?.5:type==='bowl'?.15:0)*progress;this.frameVessel()
     const profile=vesselProfile(type,progress),position=this.mesh.geometry.getAttribute('position')
     for(let i=0;i<=this.segments;i++){const a=i/this.segments*Math.PI*2,s=Math.sin(a),c=Math.cos(a)
       for(let j=0;j<this.profileCount;j++){const p=profile[j];position.setXYZ(i*this.profileCount+j,p.r*s,p.y,p.r*c)}
     }
     position.needsUpdate=true;this.mesh.geometry.computeVertexNormals();
     const normals=this.mesh.geometry.getAttribute('normal')
-    for(let j=0;j<this.profileCount;j++){const k=this.segments*this.profileCount+j,v=new THREE.Vector3(normals.getX(j)+normals.getX(k),normals.getY(j)+normals.getY(k),normals.getZ(j)+normals.getZ(k)).normalize();normals.setXYZ(j,v.x,v.y,v.z);normals.setXYZ(k,v.x,v.y,v.z)}
+    for(let j=0;j<this.profileCount;j++){const k=this.segments*this.profileCount+j,v=this.seamNormal.set(normals.getX(j)+normals.getX(k),normals.getY(j)+normals.getY(k),normals.getZ(j)+normals.getZ(k)).normalize();normals.setXYZ(j,v.x,v.y,v.z);normals.setXYZ(k,v.x,v.y,v.z)}
     normals.needsUpdate=true;this.mesh.geometry.computeBoundingSphere();this.mesh.geometry.computeBoundingBox()
     this.shadowSize=type==='plate'?1+.18*progress:1-.1*progress;this.shadow.scale.setScalar(this.shadowSize)
   }
@@ -123,7 +130,7 @@ export class ShapingScene {
     const ratio=this.renderer.getPixelRatio(),top=this.camera.top,bottom=this.camera.bottom
     try{
       this.renderer.setPixelRatio(1);this.renderer.setSize(width,height,false)
-      this.camera.top=3.15*height/width/2;this.camera.bottom=-this.camera.top;this.camera.updateProjectionMatrix()
+      this.camera.top=this.span*height/width/2;this.camera.bottom=-this.camera.top;this.camera.updateProjectionMatrix()
       this.renderer.render(this.scene,this.camera);out.getContext('2d')!.drawImage(this.canvas,0,0,width,height)
     }finally{
       this.renderer.setPixelRatio(ratio);this.renderer.setSize(this.width,this.height,false)

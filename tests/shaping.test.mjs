@@ -15,6 +15,20 @@ test('all vessel profiles begin as the same substantial disc, then develop disti
  }
 })
 test('material coordinates stay attached during all morphs and wrap with no UV seam',()=>{for(const r of[0,.2,.6,.96]){const a=materialUV(0,r),b=materialUV(Math.PI*2,r);assert.ok(Math.abs(a.u-b.u)<1e-10);assert.ok(Math.abs(a.v-b.v)<1e-10);for(let i=0;i<80;i++){const uv=materialUV(i/80*Math.PI*2,r);assert.ok(uv.u>=0&&uv.u<=1&&uv.v>=0&&uv.v<=1)}}})
+
+test('formed vessels have a recessed base, rounded rim and inner wall contained by the exterior',()=>{
+ for(const v of vesselTypes){const p=vesselProfile(v.id,1),outer=p.slice(7,32),inner=p.slice(40,64)
+  assert.ok(p[0].y>p[6].y,'recessed underside leaves a supporting foot')
+  assert.ok(Math.abs(p[31].r-p[39].r-.08)<1e-9,'rim retains clay thickness')
+  assert.equal(inner.at(-1).r,0,'inner floor reaches the axis without a radial jump')
+  for(const q of inner){
+   const k=outer.findIndex(a=>a.y>=q.y)
+   const a=outer[Math.max(0,k-1)],b=outer[Math.max(0,k)]
+   const r=a.r+(b.r-a.r)*(q.y-a.y)/Math.max(1e-9,b.y-a.y)
+   assert.ok(q.r<r,'interior stays inside the outside wall')
+  }
+ }
+})
 test('upward dragging maps continuously to progress and downward dragging can lower unfinished clay',()=>{assert.equal(liftProgress(.2,0,400),.2);assert.ok(liftProgress(.2,-40,400)>.4);assert.equal(liftProgress(0,50,400),0);assert.equal(liftProgress(.5,-300,400),1);assert.ok(liftProgress(.5,30,400)<.5)})
 test('shape progress, type and inspection survive refresh with the exact same finalPattern',()=>{const s=state(),final=JSON.stringify(s.finalPattern),draft={...initialShape(s.finalPattern.sourceKey),vesselType:'cup',progress:1,rotation:1.2,observed:true};const saved=saveShapeDraft(s,draft),restored=restoreWorkshop(JSON.stringify(saved));assert.equal(restored.vesselType,'cup');assert.equal(restored.shapeDraft.progress,1);assert.equal(restored.shapeDraft.observed,true);assert.equal(JSON.stringify(restored.finalPattern),final);assert.equal(JSON.stringify(saved.finalPattern),final);assert.equal(saveShapeDraft(s,{...draft,sourceKey:'another'}),s)})
 test('old or malformed shape caches cannot unlock the kiln; new clay/gestures invalidate the vessel',()=>{const s=state(),draft=initialShape(s.finalPattern.sourceKey);assert.equal(normalizeShape({...draft,progress:.5,observed:true},draft.sourceKey).observed,false);assert.equal(normalizeShape({...draft,progress:NaN},draft.sourceKey),null);assert.equal(normalizeShape({...draft,vesselType:'teapot'},draft.sourceKey),null);const saved=saveShapeDraft(s,{...draft,progress:1,observed:true});assert.equal(toggleClay(saved,'ivory').shapeDraft,null);assert.equal(saveOperations(saved,[...saved.operationLog,{kind:'twist'}]).shapeDraft,null);assert.equal(restoreWorkshop(JSON.stringify({...saved,shapeDraft:undefined})).shapeDraft,null)})

@@ -36,14 +36,17 @@ export function useShaping(canvasRef:RefObject<HTMLCanvasElement|null>,scene:Sha
     const redraw=()=>{if(!frame&&!disposed)frame=requestAnimationFrame(render)}
     const select=(type:VesselType)=>{
       if(type===current.current.vesselType)return
-      active=null;velocity=0;clearTimeout(timer);setMessage(false)
+      const captured=active;active=null;axis=null
+      if(captured!==null&&canvas.hasPointerCapture(captured))canvas.releasePointerCapture(captured)
+      canvas.classList.remove('is-held');delete canvas.dataset.gesture
+      velocity=0;clearTimeout(timer);setMessage(false)
       current.current={...initialShape(recipe.sourceKey),vesselType:type};settling=!reduced;dirty=true;sync();persist();redraw()
     };selectRef.current=select
     const cycle=(direction:number)=>select(vesselTypes[(vesselTypes.findIndex(v=>v.id===current.current.vesselType)+direction+vesselTypes.length)%vesselTypes.length].id)
     const formed=()=>{setComplete(true);setMessage(true);clearTimeout(timer);timer=window.setTimeout(()=>setMessage(false),1200)}
     const local=(e:PointerEvent)=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height}}
     const down=(e:PointerEvent)=>{
-      if(!e.isPrimary||e.button!==0||active!==null)return
+      if(!e.isPrimary||e.button!==0||active!==null||settling)return
       const p=local(e);if(!scene.hit(p.x,p.y))return
       e.preventDefault();canvas.classList.add('is-held');active=e.pointerId;start=p;last={...p,time:e.timeStamp};startDraft={...current.current};rotationTravel=0;velocity=0;axis=current.current.progress===1?'rotate':null
       try{canvas.setPointerCapture(e.pointerId)}catch{/* Synthetic or released contact. */}
@@ -75,7 +78,7 @@ export function useShaping(canvasRef:RefObject<HTMLCanvasElement|null>,scene:Sha
       canvas.classList.remove('is-held');delete canvas.dataset.gesture;active=null;axis=null;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);redraw()
     }
     const key=(e:KeyboardEvent)=>{
-      if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();velocity=0
+      if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)||active!==null)return;e.preventDefault();velocity=0
       if(current.current.progress<1){
         if(e.key==='ArrowLeft'||e.key==='ArrowRight'){cycle(e.key==='ArrowRight'?1:-1);return}
         const previous=current.current.progress;current.current.progress=bound(previous+(e.key==='ArrowUp'?.125:-.125));dirty=true;settling=false
