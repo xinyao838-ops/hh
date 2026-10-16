@@ -1,0 +1,40 @@
+[
+  {
+    "sourceId": "M07",
+    "sourceFile": "C0180.MP4",
+    "startSeconds": 0,
+    "endSeconds": 13,
+    "originalSha256": "b49fb1b3e7ad0b63d1085a522251f8941b62bd637bcf601085b932d186c0b92a",
+    "rightsStatus": "publish-approved",
+    "rightsEvidence": "企业已明确许可公开参赛使用；用户本轮声明",
+    "rightsEvidenceType": "用户声明（本对话2026-10-17），未独立查验授权合同",
+    "thirdPartyClearance": "企业提供原始拍摄片源",
+    "audio": false,
+    "transform": "完整画幅等比例缩至960×540，25fps，H264；未去除画内标记或字幕",
+    "webVideo": "/media/craft/m07-stack.mp4",
+    "poster": "/media/craft/m07-stack.jpg",
+    "sha256": {
+      "mp4": "22be11741671d4a443f39f88828be647b92527af80b61d99a7739c54b354a744",
+      "jpg": "4c1009fe0681a7bfcd9d61917ff6cb1b601242525945f2490cee3dfb525aeb55"
+    }
+  },
+  {
+    "sourceId": "M04",
+    "sourceFile": "578de4c64d9960cc9a9b16f93e1cfe6c_raw.mp4",
+    "startSeconds": 162,
+    "endSeconds": 168,
+    "originalSha256": "36b6d57e0ec276cd12c3a2da698e51a1fe98132d335a3ec7b454b286b4cd2e6f",
+    "rightsStatus": "publish-approved",
+    "rightsEvidence": "用户补充确认：允许截取162—168秒、去掉音轨，并在参赛H5公开网页中播放，不要求保留署名或台标",
+    "rightsEvidenceType": "用户声明（本对话2026-10-17），未独立查验授权合同",
+    "thirdPartyClearance": "用户明确确认",
+    "audio": false,
+    "transform": "完整画幅等比例缩至960×540，25fps，H264；未去除画内标记或字幕",
+    "webVideo": "/media/craft/m04-cut.mp4",
+    "poster": "/media/craft/m04-cut.jpg",
+    "sha256": {
+      "mp4": "ad4b77625d1d7ab3f745d60370d7bb99e8bb323540dea72fd3f9ec100ac7584e",
+      "jpg": "49d704459d4d326ca42c20764f35feb24d6d7d1b710400ec07ec73e7535a791e"
+    }
+  }
+]

@@ -1,3 +1,4 @@
+import {CraftReference} from '../components/CraftReference'
 import { ArrowIcon } from '../components/ArrowIcon'
 import { brand } from '../config/brand'
 import { revealCopy as copy } from '../config/reveal'
@@ -19,6 +20,7 @@ export function RevealPage(){
     <div className="reveal-words" aria-live="polite"><p className={firstLine?'is-visible':''}>{firstLine?copy.first:''}</p><p className={secondLine?'is-visible':''}>{secondLine?copy.second:''}</p></div>
     <p className="inspect-hint">{secondLine?(zoomed?copy.restore:copy.inspect):''}</p>
     {!storageAvailable&&<p className="reveal-storage" role="status">{marblingCopy.storage}</p>}
+    {secondLine&&<CraftReference stage="reveal"/>}
     <footer className="reveal-footer">{invitation&&<button className="start-twisting" type="button" onClick={()=>navigate('shape')}><span>{copy.next}</span><ArrowIcon/></button>}</footer>
   </main>
 }

@@ -45,17 +45,11 @@ function shell(ctx:CanvasRenderingContext2D,recipe:FinalPattern,left:number,righ
   p.bezierCurveTo(right-(right-left)*.4,cy+ry*1.025,left+(right-left)*.25,cy+ry*.99,left,cy+ry)
   p.bezierCurveTo(left-cap*1.3,cy+ry,left-cap*1.3,cy-ry,left,cy-ry);p.closePath()
   ctx.save();ctx.fillStyle=recipe.colors[0];ctx.fill(p);ctx.clip(p)
-  // A pair of broad, low-contrast surface traces, not a half-and-half sandwich.
-  ctx.globalAlpha=.45;ctx.fillStyle=recipe.colors[1]
-  ctx.beginPath();ctx.moveTo(left-cap,cy+ry*.2)
-  ctx.bezierCurveTo(left+(right-left)*.25,cy+ry*.04,right-(right-left)*.25,cy+ry*.36,right+cap,cy+ry*.12)
-  ctx.lineTo(right+cap,cy+ry*.32)
-  ctx.bezierCurveTo(right-(right-left)*.2,cy+ry*.51,left+(right-left)*.2,cy+ry*.17,left-cap,cy+ry*.38)
-  ctx.closePath();ctx.fill()
-  ctx.globalAlpha=.25;ctx.beginPath();ctx.moveTo(left-cap,cy-ry*.64)
-  ctx.bezierCurveTo(left+(right-left)*.3,cy-ry*.79,right-(right-left)*.2,cy-ry*.42,right+cap,cy-ry*.53)
-  ctx.lineTo(right+cap,cy-ry*.46)
-  ctx.bezierCurveTo(right-(right-left)*.2,cy-ry*.35,left+(right-left)*.3,cy-ry*.70,left-cap,cy-ry*.56);ctx.closePath();ctx.fill()
+  // A subdued surface projection of this same material: keep the seam and
+  // first two real layers. It is an observation aid, not a 3D exterior scan.
+  ctx.globalAlpha=.68
+  const surface={...recipe,model:{...recipe.model,layers:recipe.model.layers.slice(0,2)}}
+  drawPatternFace(ctx,surface,{x:left-cap,y:cy-ry*.94,width:right-left+cap*2,height:ry*1.88},true)
   ctx.globalAlpha=1
   const light=ctx.createLinearGradient(0,cy-ry,0,cy+ry)
   light.addColorStop(0,'#fff5de18');light.addColorStop(.3,'#fff4dc23');light.addColorStop(.63,'#37231606');light.addColorStop(1,'#30201548')

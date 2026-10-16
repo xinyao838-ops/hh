@@ -11,7 +11,8 @@ export class ShapingScene {
   scene=new THREE.Scene()
   camera=new THREE.OrthographicCamera()
   mesh:THREE.Mesh<THREE.LatheGeometry,THREE.MeshPhysicalMaterial>
-  private environment:THREE.WebGLRenderTarget
+  private environment:THREE.WebGLRenderTarget|null=null
+  private low:boolean
   private firingUniform={value:0}
   private hemisphere=new THREE.HemisphereLight('#fff6e5','#64543f',2.1)
   private key=new THREE.DirectionalLight('#fff5e7',2.5)
@@ -24,10 +25,12 @@ export class ShapingScene {
   private width=1
   private height=1
   private profileCount:number
+  private slowFrames=0
   private disposed=false
   constructor(private canvas:HTMLCanvasElement,recipe:FinalPattern){
     const memory=(navigator as Navigator & {deviceMemory?:number}).deviceMemory
     const low=(memory!==undefined&&memory<=4)||navigator.hardwareConcurrency<=4
+    this.low=low
     this.segments=low?shapingConfig.lowSegments:shapingConfig.segments
     this.renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:!low,powerPreference:'low-power',preserveDrawingBuffer:true})
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,low?shapingConfig.lowDpr:shapingConfig.maxDpr))
@@ -57,9 +60,8 @@ export class ShapingScene {
     for(let i=0;i<=this.segments;i++)for(let j=0;j<initial.length;j++){const v=materialUV(i/this.segments*Math.PI*2,initial[j].materialRadius);uv.setXY(i*initial.length+j,v.u,v.v)}
     uv.needsUpdate=true
     this.mesh=new THREE.Mesh(geometry,new THREE.MeshPhysicalMaterial({map,bumpMap:bump,bumpScale:.018,roughness:1,metalness:0,clearcoat:.0001,clearcoatRoughness:.42,reflectivity:.38,color:'#e5e1d9',side:THREE.DoubleSide}))
-    const pmrem=new THREE.PMREMGenerator(this.renderer),room=new RoomEnvironment()
-    this.environment=pmrem.fromScene(room,.08,.1,100,{size:low?64:128});room.dispose();pmrem.dispose()
-    this.mesh.material.envMap=this.environment.texture;this.mesh.material.envMapIntensity=0;this.mesh.material.envMapRotation.y=.4
+    // Greenware uses direct soft light. Build the fired environment only at 06.
+    this.mesh.material.envMapIntensity=0;this.mesh.material.envMapRotation.y=.4
     this.mesh.material.onBeforeCompile=shader=>{
       shader.uniforms.uFiring=this.firingUniform;shader.uniforms.uFiredMap={value:firedMap}
       shader.fragmentShader='uniform float uFiring; uniform sampler2D uFiredMap;\n'+shader.fragmentShader
@@ -84,9 +86,9 @@ export class ShapingScene {
     this.shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.7,2.7),new THREE.MeshBasicMaterial({map:shadowTexture,transparent:true,depthWrite:false}));this.shadow.rotation.x=-Math.PI/2;this.shadow.position.y=.006;this.scene.add(this.shadow)
     this.camera.position.set(0,3.3,5.5);this.camera.lookAt(0,.55,0)
     canvas.dataset.sceneId=this.scene.uuid;canvas.dataset.meshId=this.mesh.uuid;canvas.dataset.cameraId=this.camera.uuid
-    canvas.dataset.renderer='webgl';canvas.dataset.sourceKey=recipe.sourceKey;canvas.dataset.textureSize=String(size);canvas.dataset.dpr=String(this.renderer.getPixelRatio())
+    canvas.dataset.quality=low?'low':'standard';canvas.dataset.renderer='webgl';canvas.dataset.sourceKey=recipe.sourceKey;canvas.dataset.textureSize=String(size);canvas.dataset.dpr=String(this.renderer.getPixelRatio())
   }
-  resize(){const r=this.canvas.getBoundingClientRect();this.width=Math.max(1,r.width);this.height=Math.max(1,r.height);this.renderer.setSize(this.width,this.height,false);const span=3.35;this.camera.left=-span/2;this.camera.right=span/2;this.camera.top=span*this.height/this.width/2;this.camera.bottom=-this.camera.top;this.camera.near=.1;this.camera.far=30;this.camera.updateProjectionMatrix()}
+  resize(){const r=this.canvas.getBoundingClientRect();this.width=Math.max(1,r.width);this.height=Math.max(1,r.height);this.renderer.setSize(this.width,this.height,false);const span=3.15;this.camera.left=-span/2;this.camera.right=span/2;this.camera.top=span*this.height/this.width/2;this.camera.bottom=-this.camera.top;this.camera.near=.1;this.camera.far=30;this.camera.updateProjectionMatrix()}
   update(type:VesselType,progress:number){
     const profile=vesselProfile(type,progress),position=this.mesh.geometry.getAttribute('position')
     for(let i=0;i<=this.segments;i++){const a=i/this.segments*Math.PI*2,s=Math.sin(a),c=Math.cos(a)
@@ -99,6 +101,11 @@ export class ShapingScene {
     this.shadowSize=type==='plate'?1+.18*progress:1-.1*progress;this.shadow.scale.setScalar(this.shadowSize)
   }
   atmosphere(firing=0,depth=0,heat=0,approach=0){
+    if(firing>0&&!this.environment){
+      const pmrem=new THREE.PMREMGenerator(this.renderer),room=new RoomEnvironment()
+      try{this.environment=pmrem.fromScene(room,.08,.1,100,{size:this.low?64:128});this.mesh.material.envMap=this.environment.texture;this.mesh.material.needsUpdate=true}
+      finally{room.dispose();pmrem.dispose()}
+    }
     const m=firingMaterial(firing),material=this.mesh.material
     this.firingUniform.value=m.pigmentMix;material.roughness=m.roughness;material.bumpScale=m.bumpScale;material.clearcoat=m.clearcoat;material.clearcoatRoughness=m.clearcoatRoughness;material.envMapIntensity=m.envIntensity
     material.color.set('#e5e1d9').lerp(new THREE.Color('#fff7ec'),firing*.55)
@@ -116,7 +123,7 @@ export class ShapingScene {
     const ratio=this.renderer.getPixelRatio(),top=this.camera.top,bottom=this.camera.bottom
     try{
       this.renderer.setPixelRatio(1);this.renderer.setSize(width,height,false)
-      this.camera.top=3.35*height/width/2;this.camera.bottom=-this.camera.top;this.camera.updateProjectionMatrix()
+      this.camera.top=3.15*height/width/2;this.camera.bottom=-this.camera.top;this.camera.updateProjectionMatrix()
       this.renderer.render(this.scene,this.camera);out.getContext('2d')!.drawImage(this.canvas,0,0,width,height)
     }finally{
       this.renderer.setPixelRatio(ratio);this.renderer.setSize(this.width,this.height,false)
@@ -125,11 +132,14 @@ export class ShapingScene {
     return out
   }
   hit(x:number,y:number){this.scene.updateMatrixWorld(true);this.ray.setFromCamera(new THREE.Vector2(x*2-1,1-y*2),this.camera);return this.ray.intersectObject(this.mesh,false).length>0}
-  render(rotation:number){this.canvas.dataset.rotation=String(rotation);this.mesh.rotation.y=rotation;this.renderer.render(this.scene,this.camera)
+  render(rotation:number){this.canvas.dataset.rotation=String(rotation);this.mesh.rotation.y=rotation;const began=performance.now();this.renderer.render(this.scene,this.camera)
+    const cost=performance.now()-began;this.canvas.dataset.renderMs=cost.toFixed(2)
+    this.slowFrames=cost>35?this.slowFrames+1:Math.max(0,this.slowFrames-1)
+    if(this.slowFrames>=8&&this.renderer.getPixelRatio()>1){this.renderer.setPixelRatio(1);this.renderer.setSize(this.width,this.height,false);this.canvas.dataset.dpr='1';this.canvas.dataset.quality='adaptive';this.slowFrames=0}
     const box=new THREE.Box3().setFromObject(this.mesh),points=[]
     for(const x of[box.min.x,box.max.x])for(const y of[box.min.y,box.max.y])for(const z of[box.min.z,box.max.z]){const p=new THREE.Vector3(x,y,z).project(this.camera);points.push({x:(p.x+1)/2,y:(1-p.y)/2})}
     this.canvas.dataset.bounds=JSON.stringify({left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))})
     this.canvas.dataset.triangles=String(this.renderer.info.render.triangles)
   }
-  dispose(){if(this.disposed)return;this.disposed=true;this.mesh.geometry.dispose();this.mesh.material.dispose();this.shadow.geometry.dispose();(this.shadow.material as THREE.Material).dispose();this.textures.forEach(t=>t.dispose());this.textures=[];this.environment.dispose();this.scene.clear();this.renderer.dispose()}
+  dispose(){if(this.disposed)return;this.disposed=true;this.mesh.geometry.dispose();this.mesh.material.dispose();this.shadow.geometry.dispose();(this.shadow.material as THREE.Material).dispose();this.textures.forEach(t=>t.dispose());this.textures=[];this.environment?.dispose();this.scene.clear();this.renderer.dispose()}
 }

@@ -1,3 +1,4 @@
+import {scheduleVesselPreload} from '../shaping/loadVessel'
 import { useEffect, useRef, useState } from 'react'
 import { useWorkshop } from '../../state/WorkshopProvider'
 import { revealConfig } from '../../config/reveal'
@@ -16,6 +17,7 @@ export function useReveal() {
   const [entering,setEntering]=useState(!initiallyOpen&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [retry,setRetry]=useState(false),[zoomed,setZoomed]=useState(false)
   const canvasRef=useRef<HTMLCanvasElement>(null)
+  useEffect(()=>{if(opened)return scheduleVesselPreload()},[opened])
   useEffect(()=>{
     const canvas=canvasRef.current
     if(!canvas||!recipe)return

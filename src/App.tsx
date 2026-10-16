@@ -1,3 +1,6 @@
+import {VesselBoundary} from './components/VesselBoundary'
+import {loadVessel} from './features/shaping/loadVessel'
+import {VesselLoading} from './components/VesselLoading'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { navigate, readRoute } from './config/routes'
 import { brand, entranceMotion } from './config/brand'
@@ -13,7 +16,7 @@ import { revealCopy } from './config/reveal'
 import { useWorkshop } from './state/WorkshopProvider'
 import { marblingCopy } from './config/marbling'
 
-const VesselPage = lazy(() => import('./pages/VesselPage'))
+const VesselPage = lazy(loadVessel)
 
 export function App() {
   const [route, setRoute] = useState(readRoute)
@@ -59,7 +62,7 @@ export function App() {
   }, [page, route])
 
   return <>
-    {page === 'entrance' ? <EntrancePage onEnter={enterWorkshop} entering={entering} /> : page === 'clay' ? <ClayPage /> : page === 'twist' ? <TwistPage /> : page === 'reveal' ? <RevealPage /> : (page === 'shape' || page === 'kiln' || page === 'collection') ? <Suspense fallback={<main className="workshop shape-page"><p role="status">{shapingCopy.loading}</p></main>}><VesselPage phase={page} /></Suspense> : <BrandWorksPlaceholderPage />}
+    {page === 'entrance' ? <EntrancePage onEnter={enterWorkshop} entering={entering} /> : page === 'clay' ? <ClayPage /> : page === 'twist' ? <TwistPage /> : page === 'reveal' ? <RevealPage /> : (page === 'shape' || page === 'kiln' || page === 'collection') ? <VesselBoundary><Suspense fallback={<VesselLoading/>}><VesselPage phase={page} /></Suspense></VesselBoundary> : <BrandWorksPlaceholderPage />}
     {entering && <div className="entrance-transition" aria-hidden="true" style={{ animationDuration: `${entranceMotion.duration}ms` }} />}
   </>
 }

@@ -29,3 +29,11 @@
 .kiln-placeholder section p { font:15px/1.9 var(--font-serif);color:var(--color-muted); }
 @media(max-height:820px) { .shape-heading {padding-top:14px}.shape-heading h1 {font-size:27px}.shape-canvas {height:330px}.vessel-selection {margin-top:8px}.shape-footer {min-height:73px;padding-top:13px} }
 @media(max-width:360px) { .shape-page {padding-left:20px;padding-right:20px}.shape-heading h1 {font-size:25px} }
+
+.vessel-loading canvas { width:100%;height:clamp(335px,43svh,400px);object-fit:contain; }
+.vessel-loading>p { text-align:center;color:var(--color-muted);font:13px var(--font-serif); }
+.shape-canvas.is-held { cursor:grabbing; }
+.shape-workspace:has(.shape-canvas[data-gesture="lift"])::after { content:'顺着手，慢慢托起';position:absolute;bottom:15px;left:0;right:0;text-align:center;font:12px var(--font-serif);color:var(--color-muted);pointer-events:none; }
+.shape-workspace:has(.shape-canvas.is-held) { background:radial-gradient(ellipse at 50% 72%,#d9c6a85a,transparent 65%); }
+
+.vessel-load-error { position:fixed;bottom:35px;left:20px;right:20px;text-align:center;background:var(--color-clay);padding:18px;font-size:14px;z-index:20 }.vessel-load-error button{margin-top:12px;padding:12px 24px;background:var(--color-brown);color:var(--color-clay);border:0}

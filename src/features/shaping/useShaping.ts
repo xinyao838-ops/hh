@@ -45,15 +45,17 @@ export function useShaping(canvasRef:RefObject<HTMLCanvasElement|null>,scene:Sha
     const down=(e:PointerEvent)=>{
       if(!e.isPrimary||e.button!==0||active!==null)return
       const p=local(e);if(!scene.hit(p.x,p.y))return
-      e.preventDefault();active=e.pointerId;start=p;last={...p,time:e.timeStamp};startDraft={...current.current};rotationTravel=0;velocity=0;axis=current.current.progress===1?'rotate':null
+      e.preventDefault();canvas.classList.add('is-held');active=e.pointerId;start=p;last={...p,time:e.timeStamp};startDraft={...current.current};rotationTravel=0;velocity=0;axis=current.current.progress===1?'rotate':null
       try{canvas.setPointerCapture(e.pointerId)}catch{/* Synthetic or released contact. */}
     }
     const move=(e:PointerEvent)=>{
       if(e.pointerId!==active)return;e.preventDefault();const p=local(e),r=canvas.getBoundingClientRect(),dx=(p.x-start.x)*r.width,dy=(p.y-start.y)*r.height
       if(!axis&&Math.hypot(dx,dy)>7)axis=Math.abs(dy)>Math.abs(dx)*.85?'lift':'swipe'
       if(axis==='lift'){
+        canvas.dataset.gesture='lift'
         const progress=liftProgress(startDraft.progress,dy,r.height);current.current.progress=progress;current.current.observed=false;dirty=true;settling=false
       }else if(axis==='rotate'){
+        canvas.dataset.gesture='rotate'
         const angle=(p.x-last.x)*4.5;current.current.rotation+=angle;rotationTravel+=Math.abs(angle)
         velocity=bound(angle/Math.max(.016,(e.timeStamp-last.time)/1000),-1.5,1.5)
       }
@@ -67,10 +69,10 @@ export function useShaping(canvasRef:RefObject<HTMLCanvasElement|null>,scene:Sha
       else{
         if(axis==='lift'&&current.current.progress===1&&startDraft.progress<1)formed()
         if(axis==='rotate'&&rotationTravel>=shapingConfig.rotationThreshold){current.current.observed=true;setObserved(true)}
-        if(reduced||axis!=='rotate')velocity=0
+        if(reduced||axis!=='rotate'||e.timeStamp-last.time>100)velocity=0
         sync();persist()
       }
-      active=null;axis=null;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);redraw()
+      canvas.classList.remove('is-held');delete canvas.dataset.gesture;active=null;axis=null;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);redraw()
     }
     const key=(e:KeyboardEvent)=>{
       if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();velocity=0
@@ -82,7 +84,7 @@ export function useShaping(canvasRef:RefObject<HTMLCanvasElement|null>,scene:Sha
       sync();persist();redraw()
     }
     const stop=(e:Event)=>e.preventDefault()
-    const visibility=()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;velocity=0;persist()}else{lastTick=0;redraw()}}
+    const visibility=()=>{if(document.hidden){if(active!==null){current.current=startDraft;active=null;axis=null;dirty=true;sync();canvas.classList.remove('is-held');delete canvas.dataset.gesture}cancelAnimationFrame(frame);frame=0;velocity=0;persist()}else{lastTick=0;redraw()}}
     scene.resize();redraw()
     canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);canvas.addEventListener('lostpointercapture',end);canvas.addEventListener('keydown',key)
     canvas.addEventListener('contextmenu',stop);canvas.addEventListener('dblclick',stop);document.addEventListener('visibilitychange',visibility)
