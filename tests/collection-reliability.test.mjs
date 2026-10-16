@@ -3,6 +3,11 @@ import assert from 'node:assert/strict'
 import {captureForCard} from '../src/features/collection/capture.ts'
 import {CollectionRotation} from '../src/features/collection/rotation.ts'
 
+test('inspection coast has the same travel across 30/60/120Hz displays',()=>{
+ const results=[30,60,120].map(hz=>{const r=new CollectionRotation(0);r.velocity=.06;for(let i=0;i<hz;i++)r.tick(1000/hz);return r.angle})
+ assert.ok(Math.max(...results)-Math.min(...results)<1e-10)
+})
+
 test('card captures before fonts resolve, preserving the clicked angle after scene disposal',async()=>{
  let angle=.4,disposed=false,resolve
  const fonts=new Promise(r=>resolve=r)

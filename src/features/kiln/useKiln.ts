@@ -62,14 +62,16 @@ export function useKiln(canvasRef:RefObject<HTMLCanvasElement|null>,mainRef:RefO
    if(current.phase==='ready'){
     if(!canceled&&preview>=.24){current={...current,phase:'opening',elapsed:0,doorStart:preview};preview=0;persist();sync()}
     else returning=preview>0
-   }else{if(canceled){current.rotation=startRotation;velocity=0}else if(travel>=.16)current.observed=true;if(reduced)velocity=0;persist()}
+   }else{if(canceled){current.rotation=startRotation;velocity=0}else if(travel>=.16)current.observed=true;if(reduced||e.timeStamp-last.time>140)velocity=0;persist()}
    active=null;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);lastTime=0;redraw()
   }
   const key=(e:KeyboardEvent)=>{
+   if(active!==null)return
+   velocity=0
    if(e.key==='ArrowUp'&&current.phase==='ready'){e.preventDefault();current={...current,phase:'opening',elapsed:0,doorStart:0};persist();sync();lastTime=0;redraw()}
    if(['ArrowLeft','ArrowRight'].includes(e.key)&&current.phase==='revealed'){e.preventDefault();current.rotation+=(e.key==='ArrowRight'?1:-1)*.25;current.observed=true;persist();redraw()}
   }
-  const visibility=()=>{if(document.hidden){cancelAnimationFrame(frameId);frameId=0;velocity=0;persist()}else{lastTime=0;redraw()}}
+  const visibility=()=>{if(document.hidden){cancelAnimationFrame(frameId);frameId=0;velocity=0;if(active!==null){const id=active;active=null;current.rotation=startRotation;preview=0;returning=false;if(canvas.hasPointerCapture(id))canvas.releasePointerCapture(id)}persist()}else{lastTime=0;redraw()}}
   const stop=(e:Event)=>e.preventDefault()
   canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);canvas.addEventListener('lostpointercapture',end);canvas.addEventListener('keydown',key);canvas.addEventListener('contextmenu',stop);canvas.addEventListener('dblclick',stop);document.addEventListener('visibilitychange',visibility)
   scene.resize();sync();redraw()

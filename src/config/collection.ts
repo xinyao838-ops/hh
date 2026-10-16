@@ -5,7 +5,7 @@ export const collectionCopy = {
  canvas:'左右拖动查看你的瓷器，也可以使用键盘左右箭头转动。',caption:'万千纹路，这一道是你的。',
  archive:'这一纹的档案',number:'纹号',clays:'泥色',vessel:'器型',date:'生成日期',method:'制作方式',methodValue:'数字绞胎体验',
  disclaimer:'此纹号仅用于本数字体验，不代表金谷轩现行产品编号或官方溯源码。',
- generate:'生成我的纹卡',generating:'正在铺开你的纹卡…',save:'保存纹卡',longPress:'也可长按下方图片保存到手机。',
+ generate:'生成我的纹卡',generating:'正在铺开你的纹卡…',save:'保存纹卡',longPress:'也可长按上方纹卡图片保存到手机。',
  cardTitle:'我的这一纹',cardBrand:'金谷轩',cardStudio:'数字绞胎工坊',cardMotto:'表里如一，自成一纹。',
  inspect:'放大看我的纹',close:'收起纹样',zoom:'轻点或双指缩放，慢慢看这一纹。',
  brandTitle:'想看看真实的绞胎瓷？',brandBody:'从你这一纹，去看看金谷轩真实作品。',brandButton:'看看金谷轩作品',

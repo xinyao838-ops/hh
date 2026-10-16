@@ -9,11 +9,11 @@
 .pattern-archive h2 {font:13px/1.6 var(--font-serif);letter-spacing:.15em;color:#8f7962;margin-bottom:15px;}
 .pattern-archive dl {display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;}
 .pattern-archive dl>div {min-width:0;}
-.pattern-archive dt {font:11px/1.8 sans-serif;color:#a28c74;letter-spacing:.07em;}
+.pattern-archive dt {font:12px/1.8 sans-serif;color:#806a54;letter-spacing:.07em;}
 .pattern-archive dd {margin:4px 0 0;font:15px/1.6 var(--font-serif);color:#564333;}
 .pattern-archive .archive-number {grid-column:1/-1;}
 .archive-number dd {font:13px/1.8 var(--font-serif);letter-spacing:.04em;overflow-wrap:anywhere;}
-.archive-disclaimer {font:10px/1.9 sans-serif;color:#a59480;margin-top:20px;max-width:31em;}
+.archive-disclaimer {font:11px/1.9 sans-serif;color:#806e5c;margin-top:20px;max-width:31em;}
 .generate-card {margin-top:6px;}
 .generate-card span {font:16px var(--font-serif);letter-spacing:.1em;}
 .generate-card:disabled {opacity:.5;}

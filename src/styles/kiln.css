@@ -15,7 +15,11 @@
 .door-upper,.door-lower {position:absolute;left:0;right:0;background:linear-gradient(105deg,#49372a,#34271e 70%,#291e17);box-shadow:inset 0 1px #78563b44}
 .door-upper {top:0;height:52%;border-bottom:2px solid #6f442d}
 .door-upper::after {content:'';position:absolute;inset:0;background:url('../assets/paper-grain.svg');opacity:.2}
-.door-lower {bottom:0;height:40%;border-top:2px solid #70452a}
+.door-lower {bottom:0;height:47%;border-top:2px solid #70452a}
+.kiln-door::after {content:'';position:absolute;left:0;right:0;top:51%;height:3%;background:#ce692c;opacity:calc(var(--kiln-heat)*.55);box-shadow:0 0 12px #d87b33;pointer-events:none}
+.kiln-arch-rim {border-color:#604a37;box-shadow:inset 0 0 0 2px #a5805133,inset 0 3px 12px #130d09,0 12px 20px #150f0b26}
+.kiln-chamber {box-shadow:inset 0 12px 24px #100c09b0}
+.phase-ready .kiln-gesture {opacity:.85}
 .door-lower i {position:absolute;left:36%;right:36%;top:48%;height:6px;border-radius:3px;background:#21180f;box-shadow:0 1px #76553b77}
 .phase-ready .kiln-canvas {cursor:n-resize}
 .phase-entering .kiln-canvas,.phase-firing .kiln-canvas,.phase-opening .kiln-canvas {cursor:default}

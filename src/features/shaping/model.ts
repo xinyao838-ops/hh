@@ -14,20 +14,21 @@ export interface ProfilePoint {r:number;y:number;materialRadius:number}
  * Constant topology and material coordinates make intermediate shapes continuous. */
 export function vesselProfile(type:VesselType,progress:number):ProfilePoint[]{
   const target=vesselTypes.find(v=>v.id===type)!,p=bound(progress),mix=(a:number,b:number)=>a+(b-a)*p
+  const wall=type==='plate'?.10:.08,lip=wall/2
   const points:ProfilePoint[]=[]
   const push=(r0:number,y0:number,r1:number,y1:number,m:number)=>points.push({r:mix(r0,r1),y:mix(y0,y1),materialRadius:m})
   push(0,.025,0,.05,0)
   for(let i=1;i<=6;i++){const t=i/6;push(.88*t,.025,target.base*t,.05-.025*Math.sin(t*Math.PI/2)**4,t*.23)}
   // Finite slope at the foot, vertical tangent at the bowl's rim.
   const radius=(t:number)=>target.base+(target.radius-target.base)*(type==='cup'?t*.9+Math.sin(t*Math.PI/2)*.1:Math.sin(t*Math.PI/2))
-  for(let i=0;i<=24;i++){const t=i/24;push(.88+.12*Math.sin(t*Math.PI/2),.035+.12*t,radius(t),.04+(target.height-.08)*t,.23+.73*t)}
+  for(let i=0;i<=24;i++){const t=i/24;push(.88+.12*Math.sin(t*Math.PI/2),.035+.12*t,radius(t),.04+(target.height-.04-lip)*t,.23+.73*t)}
   // Smooth rounded lip with physical wall thickness, present at every progress.
-  for(let i=1;i<=8;i++){const a=i/8*Math.PI;push(.965+.035*Math.cos(a),.155+.035*Math.sin(a),target.radius-.04+.04*Math.cos(a),target.height-.04+.04*Math.sin(a),.96)}
+  for(let i=1;i<=8;i++){const a=i/8*Math.PI;push(.965+.035*Math.cos(a),.155+.035*Math.sin(a),target.radius-lip+lip*Math.cos(a),target.height-lip+lip*Math.sin(a),.96)}
   for(let i=23;i>=0;i--){const t=i/24
     // Round the inner floor into the wall instead of terminating the wall
     // with a long horizontal triangle fan. Material coordinates stay fixed.
     const corner=Math.min(1,t/.16),round=Math.sin(corner*Math.PI/2)
-    push(.93*t,.155,(radius(t)-.08)*round,.13+(target.height-.17)*t,.96*t)
+    push(.93*t,.155,(radius(t)-wall)*round,.13+(target.height-.13-lip)*t,.96*t)
   }
   push(0,.155,0,.13,0)
   return points

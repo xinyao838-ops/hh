@@ -12,6 +12,7 @@ import {useKiln} from '../features/kiln/useKiln'
 import {useCollection} from '../features/collection/useCollection'
 import {CollectionPanel} from '../components/CollectionPanel'
 import {collectionCopy} from '../config/collection'
+import {CraftReference} from '../components/CraftReference'
 /** A stable component and canvas on both routes: no renderer or mesh swap. */
 export default function VesselPage({phase}:{phase:'shape'|'kiln'|'collection'}){
  const {state}=useWorkshop(),[recipe]=useState(()=>state.finalPattern!),[initial]=useState(()=>state.shapeDraft??initialShape(recipe.sourceKey))
@@ -38,6 +39,7 @@ export default function VesselPage({phase}:{phase:'shape'|'kiln'|'collection'}){
     <p className={`kiln-result-small${kiln.second?' is-visible':''}`}>{kiln.second?kilnCopy.second:''}</p>
     {kiln.second&&<p className="kiln-inspect">{kilnCopy.turn}</p>}
    </div>
+   {kiln.second&&<CraftReference stage="kiln"/>}
    <footer className="shape-footer kiln-footer">{kiln.phase==='idle'&&!error&&<button className="start-twisting" onClick={kiln.enter}><span>{kilnCopy.enter}</span><ArrowIcon/></button>}{kiln.collect&&!error&&<button className="start-twisting" onClick={()=>{kiln.flush();navigate('collection')}}><span>{kilnCopy.next}</span><ArrowIcon/></button>}</footer>
   </>:<>
    <div className="shape-feedback" aria-live="polite"><p className={`shape-formed${shape.message?' is-visible':''}`}>{shape.complete?shapeCopy.formed:''}</p><p className="shape-instruction">{shape.complete?shapeCopy.turn:shapeCopy.lift}</p></div>

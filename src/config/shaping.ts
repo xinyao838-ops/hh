@@ -1,7 +1,7 @@
 export const vesselTypes = [
   {id:'bowl',name:'茶盏',height:.88,radius:1.04,base:.40,outline:'M6 12 Q8 31 20 33 Q32 31 34 12 M6 12 Q20 17 34 12 M6 12 Q20 7 34 12'},
   {id:'cup',name:'杯',height:1.50,radius:.70,base:.58,outline:'M10 8 L12 32 Q20 37 28 32 L30 8 M10 8 Q20 13 30 8 M10 8 Q20 3 30 8'},
-  {id:'plate',name:'盘',height:.27,radius:1.32,base:.52,outline:'M3 21 Q9 30 20 30 Q31 30 37 21 M3 21 Q20 27 37 21 M3 21 Q20 15 37 21'},
+  {id:'plate',name:'盘',height:.36,radius:1.32,base:.52,outline:'M3 21 Q9 30 20 30 Q31 30 37 21 M3 21 Q20 27 37 21 M3 21 Q20 15 37 21'},
 ] as const
 export type VesselType=typeof vesselTypes[number]['id']
 export const shapingConfig={version:1,segments:80,lowSegments:48,textureSize:1024,lowTextureSize:512,maxDpr:1.75,lowDpr:1.25,liftDistance:.43,rotationThreshold:.16} as const

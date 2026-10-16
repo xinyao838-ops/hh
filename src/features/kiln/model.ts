@@ -21,7 +21,7 @@ export function kilnFrame(k:KilnDraft){
  else if(k.phase==='revealed'){firing=1;approach=smooth(k.elapsed/1800)*.055}
  return{depth,door,dark,heat,firing,approach,arch}
 }
-export function firingMaterial(progress:number){const p=bound(progress);return{roughness:1-.72*p,bumpScale:.018-.0135*p,clearcoat:.0001+.22*p,clearcoatRoughness:.42-.1*p,envIntensity:.62*p,pigmentMix:p,contrast:1+.08*p,saturation:1+.06*p}}
+export function firingMaterial(progress:number){const p=bound(progress);return{roughness:1-.65*p,bumpScale:.018-.0135*p,clearcoat:.0001+.16*p,clearcoatRoughness:.42-.1*p,envIntensity:.62*p,pigmentMix:p,contrast:1+.08*p,saturation:1+.06*p}}
 export function advanceKiln(k:KilnDraft,delta:number):KilnDraft{
  const next={...k}
  let remaining=Number.isFinite(delta)?bound(delta,0,1000):0

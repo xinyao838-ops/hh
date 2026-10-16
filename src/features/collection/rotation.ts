@@ -25,5 +25,9 @@ export class CollectionRotation {
     return true
   }
   stop() { this.pointer = null; this.velocity = 0 }
-  tick() { this.velocity *= .91; this.angle += this.velocity; return Math.abs(this.velocity) > .0004 }
+  tick(deltaMs=1000/60) {
+    const decay=Math.pow(.91,Math.max(0,Math.min(100,deltaMs))/(1000/60))
+    this.angle+=this.velocity*.91*(1-decay)/.09;this.velocity*=decay
+    return Math.abs(this.velocity) > .0004
+  }
 }

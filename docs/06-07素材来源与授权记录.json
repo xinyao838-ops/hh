@@ -1,0 +1,26 @@
+[
+  {
+    "rangeSeconds": [
+      181,
+      187
+    ],
+    "authorization": "2026-10-17用户明确确认第三方授权：181—187秒，去音轨，保留原画面，公开参赛H5播放；须署名柴战柱",
+    "id": "M12",
+    "sourceSha256": "648F82CD4BF8782A16F3476471CDCAF7101880858AA6E8311B54E91E0BFA049B",
+    "credit": "柴战柱",
+    "scope": "用户主动打开的工艺对照，不作为烧成参数证明",
+    "outputs": [
+      "/media/craft/m12-kiln.mp4",
+      "/media/craft/m12-kiln.jpg"
+    ],
+    "source": "D:\\z桌面\\品牌策划\\绞胎瓷素材\\柴战柱无字幕.mp4"
+  },
+  {
+    "id": "PPT38",
+    "entry": "ppt/media/image118.jpeg",
+    "source": "D:\\z桌面\\品牌策划\\绞胎瓷素材\\金谷轩绞胎瓷(1).pptx",
+    "output": "/media/works/jgx-ppt38.jpg",
+    "authorization": "2026-10-17用户明确许可企业PPT第38页照片用于真实作品展示；不标产品名和价格",
+    "slide": 38
+  }
+]

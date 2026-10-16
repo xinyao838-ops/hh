@@ -12,10 +12,10 @@ export function useCollection(canvasRef:RefObject<HTMLCanvasElement|null>,scene:
   if(!enabled||!canvas||!scene||!k)return
   scene.atmosphere(1,0,0,.055);scene.render(k.rotation)
   const rotation=new CollectionRotation(k.rotation)
-  let raf=0
+  let raf=0,lastFrame=0
   const persist=()=>{const current=latest.current.state.kilnDraft;if(current)latest.current.saveKiln({...current,rotation:rotation.angle})}
   const paint=()=>scene.render(rotation.angle)
-  const glide=()=>{raf=0;const active=rotation.tick();paint();if(active)raf=requestAnimationFrame(glide);else persist()}
+  const glide=(now:number)=>{raf=0;const active=rotation.tick(lastFrame?now-lastFrame:1000/60);lastFrame=now;paint();if(active)raf=requestAnimationFrame(glide);else persist()}
   const release=(id:number)=>{if(canvas.hasPointerCapture(id))canvas.releasePointerCapture(id)}
   const stop=()=>{cancelAnimationFrame(raf);raf=0;const id=rotation.pointer;rotation.stop();if(id!==null)release(id);persist()}
   const down=(e:PointerEvent)=>{if(!rotation.begin(e.pointerId,e.clientX,e.isPrimary,e.button))return;e.preventDefault();cancelAnimationFrame(raf);raf=0;try{canvas.setPointerCapture(e.pointerId)}catch{/* Synthetic inputs don't own capture. */}}
@@ -23,7 +23,8 @@ export function useCollection(canvasRef:RefObject<HTMLCanvasElement|null>,scene:
   const up=(e:PointerEvent)=>{
    if(!rotation.end(e.pointerId,e.type!=='pointerup',e.timeStamp))return
    release(e.pointerId);persist()
-   if(rotation.velocity)raf=requestAnimationFrame(glide)
+   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)rotation.velocity=0
+   lastFrame=0;if(rotation.velocity)raf=requestAnimationFrame(glide)
   }
   const key=(e:KeyboardEvent)=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();stop();rotation.angle+=e.key==='ArrowLeft'?-.14:.14;paint();persist()}
   const hidden=()=>{if(document.hidden)stop()}

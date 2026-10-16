@@ -19,7 +19,7 @@ test('material coordinates stay attached during all morphs and wrap with no UV s
 test('formed vessels have a recessed base, rounded rim and inner wall contained by the exterior',()=>{
  for(const v of vesselTypes){const p=vesselProfile(v.id,1),outer=p.slice(7,32),inner=p.slice(40,64)
   assert.ok(p[0].y>p[6].y,'recessed underside leaves a supporting foot')
-  assert.ok(Math.abs(p[31].r-p[39].r-.08)<1e-9,'rim retains clay thickness')
+  assert.ok(Math.abs(p[31].r-p[39].r-(v.id==='plate'?.10:.08))<1e-9,'rim retains clay thickness')
   assert.equal(inner.at(-1).r,0,'inner floor reaches the axis without a radial jump')
   for(const q of inner){
    const k=outer.findIndex(a=>a.y>=q.y)
