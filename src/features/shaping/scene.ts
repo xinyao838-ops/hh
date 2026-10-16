@@ -24,6 +24,7 @@ export class ShapingScene {
   private width=1
   private height=1
   private profileCount:number
+  private disposed=false
   constructor(private canvas:HTMLCanvasElement,recipe:FinalPattern){
     const memory=(navigator as Navigator & {deviceMemory?:number}).deviceMemory
     const low=(memory!==undefined&&memory<=4)||navigator.hardwareConcurrency<=4
@@ -110,6 +111,7 @@ export class ShapingScene {
   }
   /** One synchronous export using the existing renderer, mesh, pigment and angle. */
   capture(width=940,height=790){
+    if(this.disposed||this.renderer.getContext().isContextLost())throw Error('Vessel renderer unavailable')
     const out=document.createElement('canvas');out.width=width;out.height=height
     const ratio=this.renderer.getPixelRatio(),top=this.camera.top,bottom=this.camera.bottom
     try{
@@ -129,5 +131,5 @@ export class ShapingScene {
     this.canvas.dataset.bounds=JSON.stringify({left:Math.min(...points.map(p=>p.x)),right:Math.max(...points.map(p=>p.x)),top:Math.min(...points.map(p=>p.y)),bottom:Math.max(...points.map(p=>p.y))})
     this.canvas.dataset.triangles=String(this.renderer.info.render.triangles)
   }
-  dispose(){this.mesh.geometry.dispose();this.mesh.material.dispose();this.shadow.geometry.dispose();(this.shadow.material as THREE.Material).dispose();this.textures.forEach(t=>t.dispose());this.environment.dispose();this.renderer.dispose()}
+  dispose(){if(this.disposed)return;this.disposed=true;this.mesh.geometry.dispose();this.mesh.material.dispose();this.shadow.geometry.dispose();(this.shadow.material as THREE.Material).dispose();this.textures.forEach(t=>t.dispose());this.textures=[];this.environment.dispose();this.scene.clear();this.renderer.dispose()}
 }

@@ -1,0 +1,52 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>参赛分支专项回归</title>
+<style>body{font:14px system-ui;background:#f3eee5;color:#47362a;margin:24px}button{padding:12px}pre{white-space:pre-wrap}iframe{width:390px;height:844px;border:0}</style>
+<h1>撤销重做与 WebGL 恢复</h1><p>仅在独立测试端口运行；结束时恢复测试前缓存。</p><button id="run">运行专项回归</button><pre id="result">尚未运行</pre><iframe id="app" src="/#/clay" title="专项回归手机视口"></iframe>
+<script type="module">
+import {createWorkshopState,toggleClay,saveOperations,saveFinalPattern,saveShapeDraft} from '/src/state/workshopModel.ts'
+import {createFinalPattern} from '/src/features/reveal/pattern.ts'
+import {initialShape} from '/src/features/shaping/model.ts'
+import {marblingConfig} from '/src/config/marbling.ts'
+const frame=document.querySelector('#app'),out=document.querySelector('#result'),run=document.querySelector('#run'),key='jiaoyiwen.workshop.v1'
+const raf=()=>new Promise(r=>requestAnimationFrame(r)),doc=()=>frame.contentDocument
+const wait=async(fn)=>{const t=performance.now();while(!fn()){if(performance.now()-t>12000)throw Error('等待超时');await raf()}}
+const check=(ok,text)=>{if(!ok)throw Error(text);out.textContent+='\n通过：'+text}
+const load=hash=>new Promise(r=>{frame.addEventListener('load',r,{once:true});frame.src='/?competition-test='+Date.now()+hash})
+const button=text=>[...doc().querySelectorAll('button')].find(b=>b.textContent.trim()===text)
+const click=async text=>{await wait(()=>button(text)&&!button(text).disabled);button(text).click();await raf()}
+run.onclick=async()=>{
+ run.disabled=true;const previous=localStorage.getItem(key);out.textContent='正在运行…'
+ try{
+  let s=toggleClay(toggleClay(createWorkshopState(),'ivory'),'umber')
+  s=saveOperations(s,[{kind:'fold'},{kind:'twist'},{kind:'fold'}]);localStorage.setItem(key,JSON.stringify(s))
+  await load('#/twist');await wait(()=>doc().querySelector('.twist-canvas')?.dataset.modelKey)
+  let c=doc().querySelector('.twist-canvas'),before=c.dataset.modelKey
+  await click('轻绞');await wait(()=>!button('轻绞').disabled);const after=c.dataset.modelKey
+  check(before!==after,'辅助动作实际改变材料模型')
+  await click('撤销');check(c.dataset.modelKey===before,'撤销恢复操作前的同一泥体')
+  await click('重做');check(c.dataset.modelKey===after,'重做精确恢复几何指纹')
+  await click('撤销');await click('折合');await wait(()=>!button('撤销').disabled)
+  check(button('重做').disabled,'撤销后新增动作清空重做分支')
+  for(const [w,h] of [[390,844],[375,812],[430,932]]){frame.style.width=w+'px';frame.style.height=h+'px';await raf();await raf();check(doc().documentElement.scrollWidth<=w+1,`${w}×${h} 撤销控件无横向溢出`)}
+  const log=JSON.parse(localStorage.getItem(key)).operationLog
+  await load('#/twist');await wait(()=>doc().querySelector('.twist-canvas')?.dataset.modelKey)
+  check(JSON.stringify(JSON.parse(localStorage.getItem(key)).operationLog)===JSON.stringify(log)&&button('重做').disabled,'刷新保存有效日志，重做栈按会话清空')
+  s=saveOperations(s,log,{seed:s.interactionSeed,algorithmVersion:marblingConfig.version,operationCount:log.length,imageDataUrl:'data:image/png;base64,AAAA',width:384,height:384})
+  s=saveFinalPattern(s,createFinalPattern(s));s=saveShapeDraft(s,{...initialShape(s.finalPattern.sourceKey),vesselType:'cup',progress:.5,rotation:.6});localStorage.setItem(key,JSON.stringify(s))
+  await load('#/shape');await wait(()=>doc().querySelector('.shape-canvas')?.dataset.sceneId);c=doc().querySelector('.shape-canvas')
+  // Change progress after mount to detect stale initial-state recovery.
+  c.dispatchEvent(new frame.contentWindow.KeyboardEvent('keydown',{key:'ArrowUp',bubbles:true,cancelable:true}));await raf();await raf()
+  const saved=JSON.parse(localStorage.getItem(key)),oldScene=c.dataset.sceneId
+  const extension=c.getContext('webgl2').getExtension('WEBGL_lose_context')
+  if(!extension)throw Error('此浏览器无 WEBGL_lose_context，恢复测试未执行')
+  extension.loseContext();await wait(()=>doc().querySelector('.shape-error'))
+  check(!!doc().querySelector('.shape-error'),'上下文丢失显示重试而非白屏')
+  extension.restoreContext();await wait(()=>!doc().querySelector('.shape-error')&&c.dataset.sceneId!==oldScene)
+  const restored=JSON.parse(localStorage.getItem(key))
+  check(restored.shapeDraft.progress===saved.shapeDraft.progress&&restored.shapeDraft.vesselType==='cup'&&restored.finalPattern.sourceKey===saved.finalPattern.sourceKey,'重建保留最新塑形进度、器型和同源纹样')
+  check(Math.abs(Number(c.dataset.rotation)-saved.shapeDraft.rotation)<.001,'重建保留最新朝向')
+  out.textContent+='\n全部通过。WebGL 为浏览器模拟丢失；不代表真机驱动与长时间运行已通过。'
+ }catch(e){out.textContent+='\n失败：'+e.message;console.error(e)}finally{
+  await load('#/clay');if(previous===null)localStorage.removeItem(key);else localStorage.setItem(key,previous);run.disabled=false
+ }
+}
+</script></html>

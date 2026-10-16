@@ -48,6 +48,7 @@
 .brand-placeholder>p {font:14px var(--font-serif);color:#92785f;letter-spacing:.1em;}
 .brand-placeholder section {margin:auto 0;}
 .brand-placeholder h1 {font:27px/1.7 var(--font-serif);}
+.brand-placeholder img,.brand-placeholder video {display:block;max-width:100%;height:auto;margin:20px auto;}
 .brand-placeholder section p {font:14px/1.9 var(--font-serif);color:#9a846e;margin-top:20px;}
 @media(max-width:380px){.collection-page .shape-heading h1{font-size:28px}.collection-page .shape-heading>p{font-size:13px}.collection-page .shape-canvas{height:320px}.archive-number dd{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.card-preview{animation:none}.pattern-viewport canvas{transition:none}}

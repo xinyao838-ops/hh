@@ -1,5 +1,6 @@
 import type { WorkshopState } from '../../state/workshopModel.ts'
 import {canCollect} from '../kiln/model.ts'
+import {createWorkshopState,WORKSHOP_STORAGE_KEY} from '../../state/workshopModel.ts'
 export const PATTERN_ARCHIVE_KEY='myPatterns'
 /** Experience identifiers only. These are NOT official product/traceability codes. */
 export function experienceNumber(seed:number,createdAt:string){
@@ -23,4 +24,11 @@ export function archivePattern(storage:Pick<Storage,'getItem'|'setItem'>,state:W
  // setItem is atomic; callers must NOT reset the active work when this throws.
  storage.setItem(PATTERN_ARCHIVE_KEY,JSON.stringify(next))
  return record
+}
+/** Return a replacement only after BOTH writes succeed. A retry is idempotent. */
+export function archiveAndCreateNext(storage:Pick<Storage,'getItem'|'setItem'>,state:WorkshopState){
+ archivePattern(storage,finalizeIdentity(state))
+ const next=createWorkshopState()
+ storage.setItem(WORKSHOP_STORAGE_KEY,JSON.stringify(next))
+ return next
 }

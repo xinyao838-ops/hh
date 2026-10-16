@@ -4,6 +4,7 @@ import { useWorkshop } from '../../state/WorkshopProvider'
 import { applyOperation, complexity, hitClay, interpolate, modelProgress, modelFingerprint, replay, type ClayModel, type CraftOperation, type InputKind } from './engine'
 import { DragSession, localPoint } from './input'
 import { renderClay } from './render'
+import {undoOperations,redoOperations} from './history'
 
 export function useMarbling() {
   const { state, saveMarbling } = useWorkshop()
@@ -14,7 +15,9 @@ export function useMarbling() {
   const [progress, setProgress] = useState(() => modelProgress(initial.model))
   const [animating, setAnimating] = useState(false)
   const [fusionNotice, setFusionNotice] = useState(false)
-  const api = useRef<{ action: (kind: 'twist' | 'fold') => void; finish: () => boolean }>({ action: () => {}, finish: () => false })
+  const redoStack = useRef<CraftOperation[][]>([])
+  const [interacting,setInteracting] = useState(false)
+  const api = useRef<{ action: (kind: 'twist' | 'fold') => void; history: (redo:boolean) => void; finish: () => boolean }>({ action: () => {}, history:()=>{}, finish: () => false })
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -49,6 +52,7 @@ export function useMarbling() {
     }
     const append = (operation: CraftOperation) => {
       if (current.operations.length >= marblingConfig.maxOperations) return false
+      redoStack.current = []
       current.model = applyOperation(current.model, operation)
       current.operations = [...current.operations, operation]; current.dirty = true
       const nextProgress = modelProgress(current.model)
@@ -96,7 +100,7 @@ export function useMarbling() {
           try { if (typeof navigator.vibrate === 'function') navigator.vibrate(8) } catch { /* Optional. */ }
         }
       }, marblingConfig.pressDelay)
-      current.stroke++; canvas.classList.add('is-dragging'); return true
+      current.stroke++; setInteracting(true); canvas.classList.add('is-dragging'); return true
     }
     const move = (id: number, x: number, y: number, pressure: number) => {
       if (drag.active?.id !== id) return
@@ -109,7 +113,7 @@ export function useMarbling() {
       if (drag.active?.id !== id) return
       clearTimeout(pressTimer); pressTimer = 0
       if (frame) cancelAnimationFrame(frame)
-      process(); drag.end(id); canvas.classList.remove('is-dragging')
+      process(); drag.end(id); setInteracting(false); canvas.classList.remove('is-dragging')
       if (!tween) draw(current.model)
       flush()
     }
@@ -156,6 +160,19 @@ export function useMarbling() {
     const observer = new ResizeObserver(() => { if (!disposed) draw(current.model) }); observer.observe(canvas)
     draw(current.model)
     api.current = {
+      history: redo => {
+        if(tween || drag.active)return
+        if(redo){
+          const removed=redoStack.current.pop();if(!removed)return
+          current.operations=redoOperations(current.operations,removed)
+        }else{
+          const result=undoOperations(current.operations);if(!result.removed.length)return
+          redoStack.current.push(result.removed);current.operations=result.operations
+        }
+        current.model=replay(seed,current.operations);current.dirty=true
+        clearTimeout(noticeTimer);setFusionNotice(false)
+        setProgress(modelProgress(current.model));draw();flush()
+      },
       action: kind => {
         const metrics = modelProgress(current.model)
         if (tween || drag.active || (kind === 'twist' ? metrics.twistCount >= marblingConfig.maxTwists : metrics.foldCount >= marblingConfig.maxFolds)) return
@@ -189,7 +206,8 @@ export function useMarbling() {
     // The mounted page owns its interaction session; provider checkpoints must not replay it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  return { canvasRef, progress, animating, fusionNotice, full: session.current.operations.length >= marblingConfig.maxOperations,
+  return { canvasRef, progress, animating, interacting, fusionNotice, full: session.current.operations.length >= marblingConfig.maxOperations,
+    canUndo:session.current.operations.length>0,canRedo:redoStack.current.length>0,undo:()=>api.current.history(false),redo:()=>api.current.history(true),
     act: (kind: 'twist' | 'fold') => api.current.action(kind), finish: () => api.current.finish() }
 }
 

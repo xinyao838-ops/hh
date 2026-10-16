@@ -10,10 +10,10 @@
 .fusion-notice { height: 38px; margin: 8px 0 0; display: grid; place-items: center; font: 14px var(--font-serif); color: var(--color-muted); pointer-events: none; }
 .fusion-notice span { animation: clay-notice 1s ease both; }
 .twist-storage { text-align: center; font-size: 12px; color: var(--color-muted); }
-.craft-actions { display: flex; justify-content: center; align-items: center; gap: 18px; color: #af9e86; }
-.craft-actions button { min-height: 44px; min-width: 68px; padding: 6px 12px; border: 0; color: var(--color-muted); background: transparent; font: 14px var(--font-serif); letter-spacing: .14em; touch-action: manipulation; transition: transform .15s, color .2s; }
-.craft-actions button:active:not(:disabled) { transform: scale(.96); color: var(--color-brown); }
-.craft-actions button:disabled { opacity: .38; cursor: default; }
+:is(.craft-actions, .history-actions) { display: flex; justify-content: center; align-items: center; gap: 18px; color: #af9e86; }
+:is(.craft-actions, .history-actions) button { min-height: 44px; min-width: 68px; padding: 6px 12px; border: 0; color: var(--color-muted); background: transparent; font: 14px var(--font-serif); letter-spacing: .14em; touch-action: manipulation; transition: transform .15s, color .2s; }
+:is(.craft-actions, .history-actions) button:active:not(:disabled) { transform: scale(.96); color: var(--color-brown); }
+:is(.craft-actions, .history-actions) button:disabled { opacity: .38; cursor: default; }
 .twist-footer { margin-top: auto; padding-top: 21px; }
 .twist-footer .start-twisting span { font-size: 17px; letter-spacing: .1em; }
 .twist-footer .start-twisting { animation: clay-invitation .8s ease both; }

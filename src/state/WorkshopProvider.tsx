@@ -5,7 +5,7 @@ import type { ClayId } from '../config/clays'
 import { createWorkshopState, restoreWorkshop, toggleClay, saveOperations, saveFinalPattern, saveShapeDraft, saveKilnDraft, WORKSHOP_STORAGE_KEY, type WorkshopState, type GeneratedPattern } from './workshopModel'
 import type { FinalPattern } from '../features/reveal/pattern'
 import type { CraftOperation } from '../features/marbling/engine'
-import {archivePattern,finalizeIdentity} from '../features/collection/model'
+import {archiveAndCreateNext,finalizeIdentity} from '../features/collection/model'
 type WorkshopContextValue = { state: WorkshopState; storageAvailable: boolean; finalizeWork:()=>void; archiveAndRestart:()=>boolean; selectClay: (id: ClayId) => void; saveMarbling: (operations: CraftOperation[], pattern?: GeneratedPattern) => void; saveShape: (draft: ShapeDraft) => void; saveKiln: (draft: KilnDraft) => void; saveReveal: (pattern: FinalPattern) => void }
 const WorkshopContext = createContext<WorkshopContextValue | null>(null)
 function loadState() {
@@ -29,9 +29,7 @@ export function WorkshopProvider({ children }: { children: ReactNode }) {
     finalizeWork:()=>{const next=finalizeIdentity(current.current);if(next!==current.current)persist(next)},
     archiveAndRestart:()=>{
       try {
-        archivePattern(window.localStorage,finalizeIdentity(current.current))
-        const next=createWorkshopState()
-        window.localStorage.setItem(WORKSHOP_STORAGE_KEY,JSON.stringify(next))
+        const next=archiveAndCreateNext(window.localStorage,current.current)
         current.current=next;setState(next);setStorageAvailable(true);return true
       }catch{setStorageAvailable(false);return false}
     },

@@ -22,3 +22,18 @@ test('quota errors, malformed archives and unfinished works never silently overw
  assert.throws(()=>archivePattern({getItem:()=>null,setItem:()=>{throw Error('QuotaExceededError')}},work))
  assert.throws(()=>archivePattern({getItem:()=>null,setItem:()=>writes++},createWorkshopState()));assert.equal(writes,0)
 })
+
+test('failed active-work write retains old work and archived copy; retry does not duplicate',async()=>{
+ const {archiveAndCreateNext}=await import('../src/features/collection/model.ts')
+ const {WORKSHOP_STORAGE_KEY}=await import('../src/state/workshopModel.ts')
+ const old=completed(),raw=JSON.stringify(old),memory=new Map([[WORKSHOP_STORAGE_KEY,raw]])
+ let full=true
+ const store={getItem:k=>memory.get(k)??null,setItem:(k,v)=>{if(full&&k===WORKSHOP_STORAGE_KEY)throw Error('QuotaExceededError');memory.set(k,v)}}
+ assert.throws(()=>archiveAndCreateNext(store,old),/QuotaExceededError/)
+ assert.equal(memory.get(WORKSHOP_STORAGE_KEY),raw)
+ assert.equal(JSON.parse(memory.get(PATTERN_ARCHIVE_KEY)).length,1)
+ full=false;const next=archiveAndCreateNext(store,old)
+ assert.notEqual(next.experienceId,old.experienceId)
+ assert.equal(JSON.parse(memory.get(PATTERN_ARCHIVE_KEY)).length,1)
+ assert.deepEqual(restoreWorkshop(memory.get(WORKSHOP_STORAGE_KEY)),next)
+})

@@ -4,10 +4,11 @@ import type {WorkshopState} from '../../state/workshopModel'
 import type {ShapingScene} from '../shaping/scene'
 import {drawPatternFace} from '../reveal/render'
 import {displayNumber,localDate} from './model'
+import {captureForCard} from './capture'
 /** A dedicated print layout; never captures the webpage or substitutes a model. */
 export async function createPatternCard(state:WorkshopState,scene:ShapingScene):Promise<Blob>{
  if(!state.finalPattern)throw Error('Missing final pattern')
- await document.fonts.ready
+ const vessel = await captureForCard(() => scene.capture(940,790), document.fonts.ready)
  const c=document.createElement('canvas');c.width=collectionConfig.cardWidth;c.height=collectionConfig.cardHeight
  const ctx=c.getContext('2d')!;ctx.fillStyle='#f1eadd';ctx.fillRect(0,0,c.width,c.height)
  const serif='"Noto Serif SC", "Songti SC", "SimSun", serif'
@@ -16,7 +17,7 @@ export async function createPatternCard(state:WorkshopState,scene:ShapingScene):
  ctx.save();ctx.beginPath();ctx.rect(904,80,96,352);ctx.clip();ctx.globalAlpha=.53;drawPatternFace(ctx,state.finalPattern,{x:540,y:-20,width:740,height:640});ctx.restore()
  write(copy.cardBrand,84,125,48);write(copy.cardStudio,87,170,24,'#89745e')
  ctx.strokeStyle='#78614a40';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(84,209);ctx.lineTo(814,209);ctx.stroke()
- ctx.drawImage(scene.capture(940,790),70,215)
+ ctx.drawImage(vessel,70,215)
  write(copy.cardTitle,540,1000,60,'#47362a','center')
  write(displayNumber(state.experienceId),540,1060,25,'#80664f','center')
  write(`${state.selectedClays.map(c=>c.name).join(' × ')}   /   ${vesselTypes.find(v=>v.id===state.vesselType)?.name??''}`,540,1115,29,'#6e5947','center')
