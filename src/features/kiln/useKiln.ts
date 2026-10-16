@@ -27,16 +27,16 @@ export function useKiln(canvasRef:RefObject<HTMLCanvasElement|null>,mainRef:RefO
   }
   const draw=(now:number)=>{
    frameId=0;if(disposed||document.hidden)return
-   const dt=lastTime?Math.min(50,now-lastTime):0;lastTime=now
+   const elapsed=lastTime?Math.max(0,Math.min(1000,now-lastTime)):0,dt=Math.min(50,elapsed);lastTime=now
    const previous=current.phase
-   current=advanceKiln(current,dt*(reduced&&['entering','firing','opening'].includes(current.phase)?3:1))
+   current=advanceKiln(current,elapsed*(reduced&&['entering','firing','opening'].includes(current.phase)?3:1))
    if(active===null&&Math.abs(velocity)>.005){current.rotation+=velocity*dt/1000;velocity*=Math.exp(-5.5*dt/1000);if(Math.abs(velocity)<=.005){velocity=0;persist()}}
    if(returning){preview*=Math.exp(-14*dt/1000);if(preview<.002){preview=0;returning=false}}
    const view=preview>0&&current.phase==='ready'?kilnFrame({...current,phase:'opening',elapsed:0,doorStart:preview}):kilnFrame(current)
    scene.atmosphere(view.firing,view.depth,view.heat,view.approach);scene.render(current.rotation)
    main.style.setProperty('--kiln-darkness',String(view.dark));main.style.setProperty('--kiln-heat',String(view.heat));main.style.setProperty('--kiln-arch',String(view.arch));main.style.setProperty('--kiln-door',String(view.door))
    canvas.dataset.kilnPhase=current.phase;canvas.dataset.door=String(view.door);canvas.dataset.rotation=String(current.rotation);canvas.dataset.vesselType=current.vesselType;canvas.dataset.shapeProgress=String(current.shapeProgress);canvas.dataset.kilnObserved=String(current.observed)
-   sync();saveTime+=dt
+   sync();saveTime+=elapsed
    if(previous!==current.phase||saveTime>=kilnConfig.saveInterval)persist()
    if(['entering','firing','opening'].includes(current.phase)||(current.phase==='revealed'&&current.elapsed<kilnConfig.observationDuration)||Math.abs(velocity)>.005||returning)frameId=requestAnimationFrame(draw)
   }

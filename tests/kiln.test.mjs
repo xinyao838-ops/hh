@@ -6,6 +6,18 @@ import {createWorkshopState,toggleClay,saveOperations,saveFinalPattern,saveShape
 import {createFinalPattern} from '../src/features/reveal/pattern.ts'
 import {marblingConfig} from '../src/config/marbling.ts'
 const shape={...initialShape('pattern-a'),progress:1,observed:true,rotation:.72}
+test('low frame rate does not stretch kiln timeline and phase overflow is preserved',()=>{
+ for(const phase of ['entering','opening']){
+  const start={...initialKiln(shape),phase}
+  let fast=start,slow=start
+  for(let i=0;i<100;i++)fast=advanceKiln(fast,40)
+  for(let i=0;i<4;i++)slow=advanceKiln(slow,1000)
+  assert.deepEqual(slow,fast)
+ }
+ const ready={...initialKiln(shape),phase:'ready'}
+ assert.deepEqual(advanceKiln(ready,1000),ready)
+ assert.deepEqual(advanceKiln(ready,NaN),ready)
+})
 test('firing changes finish continuously without changing the geometry recipe',()=>{
  const raw=firingMaterial(0),mid=firingMaterial(.5),fired=firingMaterial(1)
  assert.ok(raw.roughness>mid.roughness&&mid.roughness>fired.roughness&&fired.roughness>.25)

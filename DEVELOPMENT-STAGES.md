@@ -75,4 +75,11 @@
 
 本地证据截图位于 docs/competition-2026/（git 忽略的本地验收资料），不是生产资源。终验测试及构建结果见本次交付说明。
 
-终验：51 项 Node 自动化测试全部通过；TypeScript/Vite 生产构建通过；check:production 通过；README 本地 Markdown 引用均存在。构建只保留 Three.js 懒加载包超过500 kB的体积警告。专项浏览器模拟恢复通过，控制台未记录 warn/error；既有03、04、05、06、07验收均取得通过记录。无真机结论。
+终验：52 项 Node 自动化测试全部通过；TypeScript/Vite 生产构建通过；check:production 通过；README 本地 Markdown 引用均存在。构建只保留 Three.js 懒加载包超过500 kB的体积警告。专项浏览器模拟恢复通过，控制台未记录 warn/error；既有03、04、05、06、07验收均取得通过记录。无真机结论。
+
+
+## 终验发现并补修：低帧率烧制计时
+
+作品页复跑两次在等待开窑时超时。审查发现 useKiln 将时间增量限制为每帧50ms、advanceKiln 又限制100ms，低帧率会拉长既定动画。新增修改：src/features/kiln/model.ts、useKiln.ts、tests/kiln.test.mjs。时间轴与旋转物理步长分离，单帧时间轴上限1秒，阶段间保留溢出时间，ready 不会自动开窑，visibilitychange 继续暂停后台并重置时间基准。
+
+新增测试比较100次40ms和4次1000ms推进，验证阶段与观察时间一致。补修后52项自动化测试、构建和资源审计通过；collection-browser和kiln-browser再次整套通过，PNG已实际生成。日志保留补修前两次超时，不能将整个会话描述为从未报错。最终截图：docs/competition-2026/final-png-regression.png、final-kiln-regression.png。

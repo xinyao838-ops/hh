@@ -23,12 +23,21 @@ export function kilnFrame(k:KilnDraft){
 }
 export function firingMaterial(progress:number){const p=bound(progress);return{roughness:1-.72*p,bumpScale:.018-.0135*p,clearcoat:.0001+.22*p,clearcoatRoughness:.42-.1*p,envIntensity:.62*p,pigmentMix:p,contrast:1+.08*p,saturation:1+.06*p}}
 export function advanceKiln(k:KilnDraft,delta:number):KilnDraft{
- const next={...k},dt=bound(delta,0,100)
- if(['entering','firing','opening','revealed'].includes(k.phase))next.elapsed+=dt
- if(next.phase==='entering'&&next.elapsed>=kilnConfig.entryDuration){next.phase='firing';next.elapsed=0}
- if(next.phase==='firing'&&next.elapsed>=kilnConfig.firingDuration+kilnConfig.quietDuration){next.phase='ready';next.elapsed=0}
- if(next.phase==='opening'&&next.elapsed>=kilnConfig.openingDuration){next.phase='revealed';next.elapsed=0;next.viewTime=0}
- if(next.phase==='revealed'){next.elapsed=Math.min(next.elapsed,60000);next.viewTime=Math.min(next.viewTime+dt,60000)}
+ const next={...k}
+ let remaining=Number.isFinite(delta)?bound(delta,0,1000):0
+ // Timeline time is independent of physics step size. Carry phase overflow,
+ // but never automatically open the kiln while advancing elapsed time.
+ while(remaining>0){
+  if(next.phase==='revealed'){next.elapsed=Math.min(next.elapsed+remaining,60000);next.viewTime=Math.min(next.viewTime+remaining,60000);break}
+  if(!['entering','firing','opening'].includes(next.phase))break
+  const duration=next.phase==='entering'?kilnConfig.entryDuration:next.phase==='firing'?kilnConfig.firingDuration+kilnConfig.quietDuration:kilnConfig.openingDuration
+  const step=Math.min(remaining,Math.max(0,duration-next.elapsed))
+  next.elapsed+=step;remaining-=step
+  if(next.elapsed>=duration){
+   next.phase=next.phase==='entering'?'firing':next.phase==='firing'?'ready':'revealed';next.elapsed=0
+   if(next.phase==='revealed')next.viewTime=0
+  }
+ }
  return next
 }
 export const canCollect=(k:KilnDraft)=>k.phase==='revealed'&&k.observed&&k.viewTime>=kilnConfig.observationDuration
