@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { ArrowIcon } from '../components/ArrowIcon'
 import { brand } from '../config/brand'
 import { marblingConfig, marblingCopy as copy } from '../config/marbling'
@@ -6,6 +7,7 @@ import { useMarbling } from '../features/marbling/useMarbling'
 import { useWorkshop } from '../state/WorkshopProvider'
 
 export function TwistPage() {
+  const leaving=useRef(false)
   const { state, storageAvailable } = useWorkshop()
   const { canvasRef, progress, animating, interacting, fusionNotice, full, act, finish,canUndo,canRedo,undo,redo } = useMarbling()
   return <main className="workshop twist-page">
@@ -27,6 +29,6 @@ export function TwistPage() {
       <span aria-hidden="true">·</span>
       <button type="button" disabled={animating||interacting||!canRedo} onClick={redo}>重做</button>
     </div>
-    <footer className="twist-footer">{progress.ready && <button type="button" className="start-twisting" disabled={animating} onClick={() => { if (finish()) navigate('reveal') }}><span>{copy.finish}</span><ArrowIcon /></button>}</footer>
+    <footer className="twist-footer">{progress.ready && <button type="button" className="start-twisting" disabled={animating||interacting} onClick={() => { if (leaving.current) return; leaving.current=true; if (finish()) navigate('reveal'); else leaving.current=false }}><span>{copy.finish}</span><ArrowIcon /></button>}</footer>
   </main>
 }

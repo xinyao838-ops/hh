@@ -1,21 +1,25 @@
+import {traceMaterialBoundary} from '../marbling/displayPath.ts'
 import { clamp, interactionProgress, type Point } from '../marbling/engine.ts'
 import type { FinalPattern } from './pattern.ts'
+import { cutPresentation } from './presentation.ts'
+import { renderClay } from '../marbling/render.ts'
 import { revealConfig } from '../../config/reveal.ts'
 
 type Rect={x:number;y:number;width:number;height:number}
 /** The saved material columns and layers remain the sole source of the pattern. */
-export function drawPatternFace(ctx:CanvasRenderingContext2D,recipe:FinalPattern,rect:Rect) {
+export function drawPatternFace(ctx:CanvasRenderingContext2D,recipe:FinalPattern,rect:Rect,fullMaterial=false) {
   const model=recipe.model,columns=model.columns,count=columns.length
   const left=columns[0].x,span=columns.at(-1)!.x-left
   const mid=columns.reduce((sum,c)=>sum+(c.a+c.b)/2,0)/count
   const at=(i:number,v:number)=>{
-    const c=columns[i],u=(c.x-left)/span,cap=Math.sqrt(Math.max(.001,1-(2*u-1)**2))
+    const c=columns[i],u=fullMaterial?i/(count-1):(c.x-left)/span,cap=Math.sqrt(Math.max(.001,1-(2*u-1)**2))
     const belly=clamp((c.ra+c.rb)/.24,.82,1.1)
-    return {x:rect.x+u*rect.width,y:rect.y+rect.height*(.5+((c.a+c.b)/2-mid)*.14+v*.455*cap*belly)}
+    return {x:rect.x+u*rect.width,y:rect.y+rect.height*(.5+(fullMaterial?0:((c.a+c.b)/2-mid)*.14)+v*.455*cap*(fullMaterial?1:belly))}
   }
   const path=(top:number[],bottom:number[])=>{
-    const p=new Path2D();top.forEach((v,i)=>{const q=at(i,v);if(i===0)p.moveTo(q.x,q.y);else p.lineTo(q.x,q.y)})
-    for(let i=count-1;i>=0;i--){const q=at(i,bottom[i]);p.lineTo(q.x,q.y)}p.closePath();return p
+    const p=new Path2D(),points=top.map((v,i)=>at(i,v))
+    for(let i=count-1;i>=0;i--)points.push(at(i,bottom[i]))
+    traceMaterialBoundary(p,points,fullMaterial);return p
   }
   const lo=Array(count).fill(-1),hi=Array(count).fill(1),outline=path(lo,hi)
   ctx.save();ctx.fillStyle=recipe.colors[0];ctx.fill(outline);ctx.clip(outline)
@@ -28,7 +32,6 @@ export function drawPatternFace(ctx:CanvasRenderingContext2D,recipe:FinalPattern
   }
   ctx.restore()
 }
-const ease=(v:number)=>{const t=clamp(v);return t*t*(3-2*t)}
 const oval=(cx:number,cy:number,rx:number,ry:number)=>{
   const p=new Path2D();p.ellipse(cx,cy,rx,ry,-.025,0,Math.PI*2);return p
 }
@@ -63,12 +66,21 @@ function shadow(ctx:CanvasRenderingContext2D,cx:number,y:number,rx:number,ry:num
   const g=ctx.createRadialGradient(0,0,0,0,0,1);g.addColorStop(0,`rgba(65,44,27,${alpha})`);g.addColorStop(.4,`rgba(65,44,27,${alpha*.5})`);g.addColorStop(1,'rgba(65,44,27,0)')
   ctx.fillStyle=g;ctx.fillRect(-1,-1,2,2);ctx.restore()
 }
-export interface RevealView { progress:number; cutX?:number; trace:Point[]; zoom:number; pan:Point; showGuide:boolean }
+export interface RevealView { progress:number; cutX?:number; trace:Point[]; zoom:number; pan:Point; showGuide:boolean; fullMaterial?:boolean; entryProgress?:number }
 export const faceRect=(width:number,height:number):Rect=>({x:width*.505,y:height*.295,width:width*.43,height:height*.42})
 export function renderReveal(ctx:CanvasRenderingContext2D,recipe:FinalPattern,w:number,h:number,view:RevealView){
   ctx.clearRect(0,0,w,h)
-  const seconds=clamp(view.progress)*revealConfig.duration/1000
-  const separation=ease((seconds-.4)/.6),turn=ease((seconds-1)/.8),clarity=ease((seconds-1.8)/.7)
+  // An explicitly labelled 2D observation turn, not a physical remeshing.
+  const entry=view.entryProgress??1
+  if(entry<1){
+    ctx.save();ctx.translate(w/2,h/2)
+    const scale=Math.max(.012,Math.abs(Math.cos(Math.PI*entry)))
+    ctx.scale(scale,1);ctx.translate(-w/2,-h/2)
+    if(entry<.5)renderClay(ctx,recipe.model,recipe.colors,w,h)
+    else renderReveal(ctx,recipe,w,h,{...view,entryProgress:1})
+    ctx.restore();return
+  }
+  const {crack,separation,turn,clarity}=cutPresentation(view.progress)
   const final=faceRect(w,h),focus={x:final.x+final.width/2,y:final.y+final.height/2}
   ctx.save();ctx.translate(focus.x+view.pan.x*w,focus.y+view.pan.y*h);ctx.scale(view.zoom,view.zoom);ctx.translate(-focus.x,-focus.y)
   const cy=.505*h,ry=.19*h,left=.23*w,cut=(view.cutX??revealConfig.cutX)*w,right=.74*w,cap=.055*w
@@ -80,7 +92,6 @@ export function renderReveal(ctx:CanvasRenderingContext2D,recipe:FinalPattern,w:
   else {
     ctx.save();ctx.translate(bodyShift,0);ctx.beginPath();ctx.rect(0,0,cut,h);ctx.clip();shell(ctx,recipe,left,right,cy,ry,cap);ctx.restore()
     // A single straight cut, never a torn polygon or ragged pair of halves.
-    const crack=clamp(seconds/.4)
     ctx.save();ctx.strokeStyle=`rgba(65,41,25,${.65*crack})`;ctx.lineWidth=1.2
     ctx.beginPath();ctx.moveTo(cut+bodyShift,cy-ry);ctx.lineTo(cut+bodyShift,cy-ry+2*ry*crack);ctx.stroke();ctx.restore()
     const cx=(cut+shift)*(1-turn)+w*.72*turn,rx=w*(.004+.211*turn),sliceRy=ry*(1+.105*turn)
@@ -100,7 +111,7 @@ export function renderReveal(ctx:CanvasRenderingContext2D,recipe:FinalPattern,w:
       // deformed column endpoints cannot become spikes in the physical cut edge.
       const face=oval(cx,cy,rx,sliceRy)
       ctx.save();ctx.clip(face);ctx.fillStyle=recipe.colors[0];ctx.fill(face)
-      drawPatternFace(ctx,recipe,{x:cx-rx*1.13,y:cy-sliceRy*1.28,width:rx*2.26,height:sliceRy*2.56})
+      drawPatternFace(ctx,recipe,view.fullMaterial?{x:cx-rx,y:cy-sliceRy,width:rx*2,height:sliceRy*2}:{x:cx-rx*1.13,y:cy-sliceRy*1.28,width:rx*2.26,height:sliceRy*2.56},view.fullMaterial)
       const diffuse=ctx.createLinearGradient(cx-rx,cy-sliceRy,cx+rx,cy+sliceRy)
       diffuse.addColorStop(0,'#fff0d60b');diffuse.addColorStop(.55,'#402d1700');diffuse.addColorStop(1,'#402d1726');ctx.fillStyle=diffuse;ctx.fill(face)
       ctx.fillStyle=`rgba(62,43,27,${.25*(1-clarity)})`;ctx.fill(face);ctx.restore()

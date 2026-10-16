@@ -41,7 +41,7 @@ run.onclick=async()=>{
     const cuttingAt=performance.now();check(canvas.dataset.phase==='cutting','远离原引导线的左侧划切触发动画')
     check(Number(canvas.dataset.cutX)>.28&&Number(canvas.dataset.cutX)<.32,'切口位置跟随手势落点');await wait(()=>Number(canvas.dataset.animationProgress)>.36);capture('平整切口，薄片分离');await wait(()=>Number(canvas.dataset.animationProgress)>.60);capture('切片转向用户')
     await wait(()=>canvas.dataset.phase==='revealed');const openedAt=performance.now();capture('完整截面')
-    check(openedAt-cuttingAt>=2300&&openedAt-cuttingAt<2900,'切痕、薄片分离、转向和清晰显纹约2.5秒完成')
+    check(openedAt-cuttingAt>=1700&&openedAt-cuttingAt<2300,'切痕、薄片分离、转向和清晰显纹约1.9秒完成')
     check(!doc().querySelector('.reveal-words').textContent,'截面完整出现后先保持安静')
     await wait(()=>doc().querySelector('.reveal-words p:first-child').textContent);const firstAt=performance.now()
     check(firstAt-openedAt>=500,'完整截面静置约0.6秒后才出现第一句')

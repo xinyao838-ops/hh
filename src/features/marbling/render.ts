@@ -1,3 +1,4 @@
+import {traceMaterialBoundary} from './displayPath.ts'
 import { clamp, interactionProgress, noise, sectionAt, type ClayModel } from './engine.ts'
 /** Colour boundaries live in material coordinates: x is the deformed column and
  * v is the local cross-section. There is no screen-space marbling texture. */
@@ -5,11 +6,11 @@ export function materialPoint(model: ClayModel, index: number, v: number) {
   const c=model.columns[index],s=sectionAt(c,index/(model.columns.length-1))
   return {x:c.x,y:(s.top+s.bottom)/2+v*(s.bottom-s.top)/2}
 }
-function pathBetween(model:ClayModel,top:number[],bottom:number[],width:number,height:number) {
+function pathBetween(model:ClayModel,top:number[],bottom:number[],width:number,height:number,soft=false) {
   const path=new Path2D()
-  top.forEach((v,i)=>{const p=materialPoint(model,i,v);if(i===0)path.moveTo(p.x*width,p.y*height);else path.lineTo(p.x*width,p.y*height)})
-  for(let i=bottom.length-1;i>=0;i--){const p=materialPoint(model,i,bottom[i]);path.lineTo(p.x*width,p.y*height)}
-  path.closePath();return path
+  const points=top.map((v,i)=>{const p=materialPoint(model,i,v);return {x:p.x*width,y:p.y*height}})
+  for(let i=bottom.length-1;i>=0;i--){const p=materialPoint(model,i,bottom[i]);points.push({x:p.x*width,y:p.y*height})}
+  traceMaterialBoundary(path,points,soft);return path
 }
 let grain:HTMLCanvasElement|undefined
 const shadeSurfaces=new WeakMap<CanvasRenderingContext2D,HTMLCanvasElement>()
@@ -44,20 +45,20 @@ function grainPattern(ctx:CanvasRenderingContext2D) {
   }
   return ctx.createPattern(grain,'repeat')!
 }
-export function renderClay(ctx:CanvasRenderingContext2D,model:ClayModel,colors:string[],width:number,height:number,section=false) {
+export function renderClay(ctx:CanvasRenderingContext2D,model:ClayModel,colors:string[],width:number,height:number,section=false,soft=false) {
   ctx.clearRect(0,0,width,height)
   const count=model.columns.length,top=Array(count).fill(-1),bottom=Array(count).fill(1)
-  const body=pathBetween(model,top,bottom,width,height),seam=model.columns.map(c=>c.seam)
+  const body=pathBetween(model,top,bottom,width,height,soft),seam=model.columns.map(c=>c.seam)
   const progress=interactionProgress(model)
   const drawMaterials=()=>{
     ctx.fillStyle=colors[0];ctx.fill(body)
-    ctx.fillStyle=colors[1];ctx.fill(pathBetween(model,seam,bottom,width,height))
+    ctx.fillStyle=colors[1];ctx.fill(pathBetween(model,seam,bottom,width,height,soft))
     for(const layer of model.layers){
       // A newly folded tongue unfolds over subsequent work, not on a timer.
       const grow=clamp((progress-layer.birth)/.075)
       const upper=layer.top.map((v,i)=>{const mid=(v+layer.bottom[i])/2;return mid+(v-mid)*grow})
       const lower=layer.bottom.map((v,i)=>{const mid=(v+layer.top[i])/2;return mid+(v-mid)*grow})
-      ctx.fillStyle=colors[layer.material];ctx.fill(pathBetween(model,upper,lower,width,height))
+      ctx.fillStyle=colors[layer.material];ctx.fill(pathBetween(model,upper,lower,width,height,soft))
     }
   }
   ctx.save()

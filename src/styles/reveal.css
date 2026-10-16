@@ -22,3 +22,6 @@
 @media (max-height: 820px) { .reveal-heading { padding-top: 13px; } .reveal-heading h1 { font-size: 24px; } .reveal-workspace { margin-top: 17px; } .reveal-canvas { height: 340px; } .reveal-words { padding-top: 17px; } .reveal-footer { padding-top: 16px; } }
 @media (max-width: 360px) { .reveal-page { padding-left: 22px; padding-right: 22px; } .reveal-heading h1 { font-size: 23px; } }
 
+
+.reveal-view-label { height: 17px; margin-top: 12px; text-align: center; color: var(--color-muted); font: 11px/17px var(--font-serif); letter-spacing: .08em; }
+.reveal-workspace { margin-top: 4px; }
