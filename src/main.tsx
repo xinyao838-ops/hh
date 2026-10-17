@@ -11,6 +11,7 @@ import './styles/reveal.css'
 import './styles/shaping.css'
 import './styles/kiln.css'
 import './styles/collection.css'
+import './styles/exhibition.css'
 import { WorkshopProvider } from './state/WorkshopProvider'
 
 Object.entries(palette).forEach(([name, value]) => {

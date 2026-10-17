@@ -1,0 +1,52 @@
+[
+  {
+    "id": "M01",
+    "source": "1、孔雀开屏.m4v",
+    "range": "9.6s",
+    "file": "/media/entrance/m01-vessel.jpg",
+    "stage": "01、07",
+    "usage": "企业实拍参考，非数字生成结果",
+    "rights": "企业提供，用户许可公开参赛使用",
+    "audio": false
+  },
+  {
+    "id": "M01",
+    "source": "1、孔雀开屏.m4v",
+    "range": "61.75s",
+    "file": "/media/entrance/m01-detail.jpg",
+    "stage": "01",
+    "usage": "企业实拍参考，非数字生成结果",
+    "rights": "企业提供，用户许可公开参赛使用",
+    "audio": false
+  },
+  {
+    "id": "M05",
+    "source": "93daa27852574665542f1d4361927509.jpg",
+    "range": null,
+    "file": "/media/entrance/m05-workshop.jpg",
+    "stage": "07",
+    "usage": "企业实拍参考，非数字生成结果",
+    "rights": "企业提供，用户许可公开参赛使用",
+    "audio": false
+  },
+  {
+    "id": "M06",
+    "source": "C0179.MP4",
+    "range": "3.3s",
+    "file": "/media/materials/m06-preparation.jpg",
+    "stage": "02",
+    "usage": "企业实拍参考，非数字生成结果",
+    "rights": "企业提供，用户许可公开参赛使用",
+    "audio": false
+  },
+  {
+    "id": "M02",
+    "source": "3、丝绸之路.m4v",
+    "range": "9.6s",
+    "file": "/media/works/m02-vessel.jpg",
+    "stage": "07",
+    "usage": "企业实拍参考，非数字生成结果",
+    "rights": "企业提供，用户许可公开参赛使用",
+    "audio": false
+  }
+]

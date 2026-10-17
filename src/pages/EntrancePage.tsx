@@ -1,5 +1,5 @@
 import { ArrowIcon } from '../components/ArrowIcon'
-import { ClaySectionArtwork } from '../components/ClaySectionArtwork'
+import { exhibitionImages } from '../config/exhibition'
 import { EntranceProgress } from '../components/EntranceProgress'
 import { WorkshopIdentity } from '../components/WorkshopIdentity'
 import { brand } from '../config/brand'
@@ -14,9 +14,11 @@ export function EntrancePage({ onEnter, entering }: { onEnter: () => void; enter
           <p className="subtitle"><strong>{brand.name}</strong><span>{brand.workshopName}</span></p>
         </header>
         <div className="artwork-stage">
-          <span className="artwork-note artwork-note--left">{brand.artworkLabels[0]}</span>
-          <ClaySectionArtwork />
-          <span className="artwork-note artwork-note--right">{brand.artworkLabels[1]}</span>
+          <figure className="heritage-hero">
+            <img className="heritage-detail" src={exhibitionImages.detail.src} alt={exhibitionImages.detail.alt} fetchPriority="high" width="960" height="540" />
+            <figcaption><span>真实器物 · 胎内有纹</span><small>企业提供影像</small></figcaption>
+          </figure>
+          <figure className="heritage-object"><img src={exhibitionImages.vessel.src} alt={exhibitionImages.vessel.alt} width="1280" height="720" /><figcaption>孔雀开屏 · 器物全貌</figcaption></figure>
         </div>
         <section className="entry-action" aria-label="进入数字绞胎工坊">
           <p className="core-copy">{brand.description[0]}<br /><span>{brand.description[1]}</span></p>

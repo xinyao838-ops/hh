@@ -1,4 +1,5 @@
 import { useRef, useState, type CSSProperties, type MouseEvent } from 'react'
+import { exhibitionImages } from '../config/exhibition'
 import { ArrowIcon } from '../components/ArrowIcon'
 import { ClayLump } from '../components/ClayLump'
 import { GuideCharacter } from '../components/GuideCharacter'
@@ -38,6 +39,7 @@ export function ClayPage() {
     </header>
     <div className="clay-making-area">
       <header className="clay-page-heading"><h1 tabIndex={-1}>{clayCopy.title}</h1><p>{clayCopy.intro}</p></header>
+      <figure className="material-reference"><img src={exhibitionImages.preparation.src} alt={exhibitionImages.preparation.alt} width="960" height="540" /><figcaption><strong>从真实的泥开始</strong><span>企业实拍 · 泥料分切</span><small>下方为数字体验选色，不代表实际配方。</small></figcaption></figure>
       <section className="making-table" aria-label={clayCopy.table}>
         <div className="table-caption"><span>{clayCopy.table}</span><span>{clayCopy.count} <b>{count}</b> / 2</span></div>
         <div className="table-surface">
