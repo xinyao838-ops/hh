@@ -47,6 +47,7 @@ export default function VesselPage({phase}:{phase:'shape'|'kiln'|'collection'}){
     <svg className="vessel-outline" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d={selected.outline}/></svg>
     <div className="vessel-names">{vesselTypes.map(v=><button key={v.id} type="button" className={shape.type===v.id?'is-selected':''} aria-pressed={shape.type===v.id} onClick={e=>{if(e.detail===0||!swiped.current)shape.select(v.id)}}>{v.name}</button>)}</div><p>{shapeCopy.switch}</p>
    </section>
+   <CraftReference stage="shape" disabled={error}/>
    <footer className="shape-footer">{shape.complete&&shape.observed&&!error&&<button className="start-twisting" onClick={()=>{shape.finish();navigate('kiln')}}><span>{shapeCopy.next}</span><ArrowIcon/></button>}</footer>
   </>}
  </main>

@@ -7,6 +7,7 @@ import {displayNumber,localDate} from '../features/collection/model'
 import {createPatternCard} from '../features/collection/card'
 import type {ShapingScene} from '../features/shaping/scene'
 import {ArrowIcon} from './ArrowIcon'
+import {RealWorksGallery} from './RealWorksGallery'
 import {PatternViewer} from './PatternViewer'
 export function CollectionPanel({scene,error}:{scene:ShapingScene|null;error:boolean}){
  const {state,storageAvailable,archiveAndRestart}=useWorkshop(),[card,setCard]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[viewer,setViewer]=useState(false)
@@ -25,7 +26,7 @@ export function CollectionPanel({scene,error}:{scene:ShapingScene|null;error:boo
   {card&&<section ref={preview} className="card-preview" aria-label="我的纹卡预览"><img src={card} alt="我的这一纹：包含金谷轩文字标识、本次器物、体验纹号、泥色和器型的竖版纹卡" width={1080} height={1440}/><a className="save-card" href={card} download={`${state.experienceId}-我的这一纹.png`} onClick={()=>setMessage(copy.downloaded)}>{copy.save}<span aria-hidden="true">↓</span></a><p>{copy.longPress}</p></section>}
   <button className="collection-text inspect-pattern" onClick={()=>setViewer(true)}>{copy.inspect}<span aria-hidden="true">↗</span></button>
   <p className="collection-status" role="status">{message||(!storageAvailable?copy.storageError:'')}</p>
-  <section className="brand-invitation"><span aria-hidden="true">金谷轩</span><h2>{copy.brandTitle}</h2><p>{copy.brandBody}</p>{collectionConfig.brandProductUrl?<a href={collectionConfig.brandProductUrl} target="_blank" rel="noopener noreferrer">{copy.brandButton}<ArrowIcon/></a>:<button onClick={()=>navigate('brand')}>{copy.brandButton}<ArrowIcon/></button>}</section>
+  <section className="brand-invitation"><span aria-hidden="true">金谷轩</span><h2>{copy.brandTitle}</h2><p>{copy.brandBody}</p><RealWorksGallery/>{collectionConfig.brandProductUrl?<a href={collectionConfig.brandProductUrl} target="_blank" rel="noopener noreferrer">{copy.brandButton}<ArrowIcon/></a>:<button onClick={()=>navigate('brand')}>{copy.brandButton}<ArrowIcon/></button>}</section>
   <footer className="collection-footer"><button className="collection-text restart-work" onClick={()=>{if(archiveAndRestart())navigate('clay');else setMessage(copy.storageError)}}>{copy.restart}<span aria-hidden="true">↻</span></button><p>{copy.restartHint}</p></footer>
   {viewer&&<PatternViewer pattern={state.finalPattern!} onClose={()=>setViewer(false)}/>}
  </div>

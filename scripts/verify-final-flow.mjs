@@ -123,7 +123,7 @@ async function fireAndCollect(type){
  }
  mark('07藏纹-'+type);await tap('.kiln-footer button');await page.locator('.collection-page').waitFor();await wait(500)
  check((await state()).finalPattern.sourceKey===expected,type+'藏纹同源')
- await page.screenshot({path:path.join(out,'07-'+type+'正式界面.png'),fullPage:true})
+ await page.screenshot({path:path.join(out,'07-'+type+'正式界面.png')})
  await page.locator('.generate-card').click();await page.locator('.card-preview img').waitFor();await until(async()=>await page.locator('.card-preview img').evaluate(i=>i.naturalWidth===1080&&i.naturalHeight===1440))
  const download=page.waitForEvent('download');await page.locator('.save-card').click();const file=await download;await file.saveAs(path.join(out,type+'-1080x1440.png'))
  check(true,type+'真实PNG下载1080×1440');cards.push({type,state:await state(),filename:file.suggestedFilename()})
@@ -137,6 +137,6 @@ for(const [type,index] of [['茶盏',0],['杯',1]]){
 }
 await page.evaluate(()=>scrollTo(0,0))
 for(const [w,h]of [[375,812],[390,844],[430,932]]){await page.setViewportSize({width:w,height:h});await wait(200);check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${w}×${h} 藏纹无横向溢出`);await page.screenshot({path:path.join(out,`07-${w}.png`)})}
-await page.locator('.brand-invitation button').click();await page.locator('.brand-placeholder img').waitFor();check(await page.locator('.brand-placeholder img').evaluate(i=>i.complete&&i.naturalWidth>0),'已授权真实作品照片加载');check(await page.locator('a[href^="http"]').count()===0,'无未经确认外部产品链接')
+await page.locator('.brand-invitation button').click();await page.locator('.brand-placeholder img').first().waitFor();check(await page.locator('.brand-placeholder img').evaluateAll(images=>images.every(i=>i.complete&&i.naturalWidth>0)),'已授权真实作品照片加载');check(await page.locator('a[href^="http"]').count()===0,'无未经确认外部产品链接')
 check(errors.length===0,'全流程无pageerror')
 await fs.writeFile(path.join(out,'验证记录.json'),JSON.stringify({checks,errors,events,frames:records.length,recordingSource,recordingSourceKey:expected,cards,recording:'正式dist；Edge CDP触控；非真机'},null,2));await browser.close();console.log(JSON.stringify({checks,errors,out},null,2))

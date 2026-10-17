@@ -21,3 +21,25 @@
 @media(max-height:820px){.clay-page .clay-making-area{padding-top:8px}.clay-page .clay-page-heading h1{font-size:30px}.clay-page .clay-page-heading p{font-size:14px;margin-top:6px}.clay-page .material-reference{margin-top:12px}.clay-page .table-surface{min-height:156px}.clay-page .table-clay-art{max-width:106px}.clay-page .clay-actions>p{margin-top:8px}}
 @media(max-height:700px){.entrance-page .artwork-stage{height:210px;margin:12px 0 18px}.heritage-object{width:92px}.heritage-object img{height:85px}}
 @media(min-width:700px){.entrance-page .artwork-stage{height:450px;margin:0}.heritage-object{width:150px}.heritage-object img{height:150px}}
+
+/* Consistent exhibit lighting and hierarchy, without overlaying the generated clay. */
+.twist-workspace {background:radial-gradient(ellipse at 44% 32%,#f2ebdf,#e3d6c4);box-shadow:inset 0 1px #fffaf0,0 3px #d4c7b5,0 15px 30px #5139200b;}
+.shape-workspace {background:radial-gradient(ellipse at 50% 74%,#dfcbb64d,transparent 65%);}
+.shape-page:not(.kiln-page):not(.collection-page) .shape-heading {padding-top:18px;}
+.shape-page:not(.kiln-page):not(.collection-page) .vessel-selection {margin-top:4px;}
+.shape-page:not(.kiln-page):not(.collection-page)>.craft-reference {margin-top:12px;}
+.shape-page:not(.kiln-page):not(.collection-page) .shape-footer {min-height:74px;}
+.real-works {margin-top:20px;text-align:left;}
+.brand-invitation .real-works-label {font:11px/1.8 system-ui;color:#78614b;}
+.real-works-pair {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.real-works figure {margin:0;}
+.real-works-pair img {display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:2px;background:#2d281f;}
+.real-works figcaption {font:16px/1.8 var(--font-serif);padding-top:9px;color:#5a402c;}
+.real-works strong {font-weight:400;}
+.real-works small {display:block;font:10px/1.8 system-ui;color:#89725d;}
+.real-works-group {position:relative;margin-top:18px!important;overflow:hidden;border-radius:2px;}
+.real-works-group img {display:block;width:100%;height:126px;object-fit:cover;object-position:50% 40%;}
+.real-works-group figcaption {position:absolute;inset:auto 0 0;padding:30px 14px 12px;color:#fff4e5;background:linear-gradient(transparent,#231b12dd);font-size:14px;}
+.real-works-group small {color:#eee1cc;}
+.pattern-archive {box-shadow:0 8px 30px #60462e06;}
+@media(max-height:850px){.shape-page:not(.kiln-page):not(.collection-page) .shape-heading{padding-top:12px}.shape-page:not(.kiln-page):not(.collection-page) .shape-canvas{height:330px}.shape-page:not(.kiln-page):not(.collection-page) .shape-feedback{min-height:55px}.shape-page:not(.kiln-page):not(.collection-page) .vessel-outline{width:28px;height:28px}.shape-page:not(.kiln-page):not(.collection-page)>.craft-reference{margin-top:6px}}

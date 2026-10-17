@@ -42,7 +42,7 @@
   {
     "id": "M02",
     "source": "3、丝绸之路.m4v",
-    "range": "9.6s",
+    "range": "2.17s",
     "file": "/media/works/m02-vessel.jpg",
     "stage": "07",
     "usage": "企业实拍参考，非数字生成结果",
@@ -83,6 +83,54 @@
     "file": "/media/craft/m04-cut.jpg",
     "stage": "04",
     "rights": "用户已确认公开参赛授权；原画面保留",
+    "audio": false
+  },
+  {
+    "id": "M12",
+    "source": "柴战柱无字幕.mp4",
+    "range": "168–172s",
+    "file": "/media/craft/m12-shaping.mp4",
+    "stage": "05",
+    "credit": "柴战柱",
+    "rights": "用户确认第三方授权，去音轨，保留原画面，公开参赛H5",
+    "audio": false
+  },
+  {
+    "id": "M12",
+    "source": "柴战柱无字幕.mp4",
+    "range": "168–172s",
+    "file": "/media/craft/m12-shaping.jpg",
+    "stage": "05",
+    "credit": "柴战柱",
+    "rights": "用户确认第三方授权，去音轨，保留原画面，公开参赛H5",
+    "audio": false
+  },
+  {
+    "id": "M12",
+    "source": "柴战柱无字幕.mp4",
+    "range": "181–187s",
+    "file": "/media/craft/m12-kiln.mp4",
+    "stage": "06",
+    "credit": "柴战柱",
+    "rights": "用户确认第三方授权，去音轨，保留原画面，公开参赛H5",
+    "audio": false
+  },
+  {
+    "id": "M12",
+    "source": "柴战柱无字幕.mp4",
+    "range": "181–187s",
+    "file": "/media/craft/m12-kiln.jpg",
+    "stage": "06",
+    "credit": "柴战柱",
+    "rights": "用户确认第三方授权，去音轨，保留原画面，公开参赛H5",
+    "audio": false
+  },
+  {
+    "id": "PPT38",
+    "source": "金谷轩绞胎瓷(1).pptx 第38页",
+    "file": "/media/works/jgx-ppt38.jpg",
+    "stage": "07",
+    "rights": "用户许可，不标产品名与价格",
     "audio": false
   }
 ]
