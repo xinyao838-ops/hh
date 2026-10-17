@@ -7,3 +7,17 @@
 .craft-play{position:absolute;inset:0;margin:auto;width:160px;height:44px;border:1px solid #a78c71;background:#f4eee3e8;color:var(--color-brown);border-radius:22px}
 .craft-dialog p{font:14px/1.8 var(--font-serif);margin:12px 0}.craft-dialog small{font-size:11px;color:var(--color-muted)}.craft-return{display:block;width:100%;margin-top:22px;padding:14px;border:0;background:var(--color-brown);color:#f4eee3;font:16px var(--font-serif)}
 @media(max-height:850px){.twist-page:has(.craft-reference) .twist-canvas{height:330px}.twist-page:has(.craft-reference) .fusion-notice{height:26px}.reveal-page:has(.craft-reference) .reveal-canvas{height:310px}.reveal-page:has(.craft-reference) .inspect-hint{margin-top:8px}.reveal-page:has(.craft-reference) .reveal-footer{padding-top:10px}}
+
+.craft-eyebrow {font:11px/1.8 system-ui;letter-spacing:.12em;color:#8b7057;margin:3px 0 8px;}
+.craft-dialog {border-radius:14px 14px 0 0;box-shadow:0 -12px 50px #21190e24;}
+.craft-dialog h2 {font-size:24px;line-height:1.4;letter-spacing:.04em;}
+.craft-film {margin-top:18px;margin-bottom:18px;}
+.craft-film video,.craft-fallback {display:block;width:100%;height:100%;object-fit:contain;}
+.craft-film .craft-failure {position:absolute;inset:0;background:#f4eee3c9;height:100%;padding:16px;line-height:1.8;color:#513b2a;}
+.craft-failure button {justify-self:center;background:#f4eee3;border:1px solid #9e8063;color:#513b2a;border-radius:2px;min-height:44px;padding:8px 24px;}
+.craft-dialog p {font-size:15px;line-height:1.85;margin-bottom:12px;}
+.craft-dialog small {display:block;line-height:1.8;}
+.craft-play {border-radius:3px;box-shadow:0 2px 16px #1d140b24;}
+.craft-return {border-radius:3px;min-height:50px;margin-top:20px;}
+.craft-reference {font-size:14px;min-height:44px;}
+@media(max-width:380px){.craft-dialog h2{font-size:22px}.craft-dialog section{padding-inline:18px}.craft-film{margin-inline:-18px}}

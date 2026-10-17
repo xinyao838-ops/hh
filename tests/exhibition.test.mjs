@@ -14,3 +14,12 @@ test('editorial images are local, documented and separate from generated state',
  assert.ok(!home.includes('<video'))
  assert.ok(home.includes('fetchPriority="high"'))
 })
+
+test('craft reference stays read-only and retains an image when playback fails',()=>{
+ const source=fs.readFileSync('src/components/CraftReference.tsx','utf8')
+ assert.ok(!source.includes('useWorkshop'))
+ assert.ok(source.includes('className="craft-fallback"'))
+ assert.ok(source.includes('src={playing?item.video:undefined}'))
+ assert.ok(source.includes('preload="none"'))
+ assert.ok(source.includes('v.pause();v.removeAttribute'))
+})

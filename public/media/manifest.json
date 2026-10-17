@@ -48,5 +48,41 @@
     "usage": "企业实拍参考，非数字生成结果",
     "rights": "企业提供，用户许可公开参赛使用",
     "audio": false
+  },
+  {
+    "id": "M07",
+    "source": "C0180.MP4",
+    "range": "0–8s",
+    "file": "/media/craft/m07-stack.mp4",
+    "stage": "03",
+    "rights": "用户已确认公开参赛授权；原画面保留",
+    "audio": false
+  },
+  {
+    "id": "M07",
+    "source": "C0180.MP4",
+    "range": "0–8s",
+    "file": "/media/craft/m07-stack.jpg",
+    "stage": "03",
+    "rights": "用户已确认公开参赛授权；原画面保留",
+    "audio": false
+  },
+  {
+    "id": "M04",
+    "source": "578de4c64d9960cc9a9b16f93e1cfe6c_raw.mp4",
+    "range": "162–168s",
+    "file": "/media/craft/m04-cut.mp4",
+    "stage": "04",
+    "rights": "用户已确认公开参赛授权；原画面保留",
+    "audio": false
+  },
+  {
+    "id": "M04",
+    "source": "578de4c64d9960cc9a9b16f93e1cfe6c_raw.mp4",
+    "range": "162–168s",
+    "file": "/media/craft/m04-cut.jpg",
+    "stage": "04",
+    "rights": "用户已确认公开参赛授权；原画面保留",
+    "audio": false
   }
 ]
