@@ -4,7 +4,7 @@ export function HeritageContent(){
  const items=publishableHeritage(heritageContent)
  if(!items.length)return <section><h1 tabIndex={-1}>{copy.brandPlaceholder}</h1><p>{copy.brandPending}</p></section>
  return <section><h1 tabIndex={-1}>走近真实的绞胎瓷</h1>{items.map(item=><figure key={item.id}>
-  {item.kind==='video'?<video controls playsInline preload="none" aria-label={item.alt} src={item.src}/>:<img loading="lazy" src={item.src} alt={item.alt}/>}
-  <figcaption><h2>{item.title}</h2></figcaption>
+  {item.kind==='video'?<video controls playsInline preload="none" aria-label={item.alt} src={item.src}/>:<img loading="lazy" width={item.width} height={item.height} src={item.src} alt={item.alt}/>}
+  {item.title&&<figcaption><h2>{item.title}</h2></figcaption>}
  </figure>)}</section>
 }

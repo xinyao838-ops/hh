@@ -152,5 +152,173 @@
     "usage": "真实静帧裁切，另生成64×80嵌入式JPEG网络失败预览",
     "rights": "企业许可公开参赛使用",
     "audio": false
+  },
+  {
+    "id": "ppt-work-95",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第35页，ppt/media/image95.png",
+    "file": "/media/works/ppt/work-95.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-96",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第35页，ppt/media/image96.png",
+    "file": "/media/works/ppt/work-96.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-97",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第35页，ppt/media/image97.png",
+    "file": "/media/works/ppt/work-97.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-98",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第35页，ppt/media/image98.png",
+    "file": "/media/works/ppt/work-98.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-99",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第35页，ppt/media/image99.jpeg",
+    "file": "/media/works/ppt/work-99.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-100",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第35页，ppt/media/image100.jpeg",
+    "file": "/media/works/ppt/work-100.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-101",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第36页，ppt/media/image101.png",
+    "file": "/media/works/ppt/work-101.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-102",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第36页，ppt/media/image102.png",
+    "file": "/media/works/ppt/work-102.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-103",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第36页，ppt/media/image103.png",
+    "file": "/media/works/ppt/work-103.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-104",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第36页，ppt/media/image104.png",
+    "file": "/media/works/ppt/work-104.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-105",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第36页，ppt/media/image105.png",
+    "file": "/media/works/ppt/work-105.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-106",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第36页，ppt/media/image106.png",
+    "file": "/media/works/ppt/work-106.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-107",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第37页，ppt/media/image107.jpeg",
+    "file": "/media/works/ppt/work-107.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-112",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第37页，ppt/media/image112.jpeg",
+    "file": "/media/works/ppt/work-112.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-123",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第40页，ppt/media/image123.jpeg",
+    "file": "/media/works/ppt/work-123.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-124",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第40页，ppt/media/image124.jpeg",
+    "file": "/media/works/ppt/work-124.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-125",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第40页，ppt/media/image125.jpeg",
+    "file": "/media/works/ppt/work-125.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-126",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第40页，ppt/media/image126.jpeg",
+    "file": "/media/works/ppt/work-126.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-127",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第40页，ppt/media/image127.jpeg",
+    "file": "/media/works/ppt/work-127.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-128",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第40页，ppt/media/image128.jpeg",
+    "file": "/media/works/ppt/work-128.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-140",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第43页，ppt/media/image140.jpeg",
+    "file": "/media/works/ppt/work-140.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-141",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第43页，ppt/media/image141.jpeg",
+    "file": "/media/works/ppt/work-141.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-142",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第43页，ppt/media/image142.jpeg",
+    "file": "/media/works/ppt/work-142.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
+  },
+  {
+    "id": "ppt-work-143",
+    "source": "企业PPT《金谷轩绞胎瓷(1)》第43页，ppt/media/image143.jpeg",
+    "file": "/media/works/ppt/work-143.webp",
+    "stage": "07企业作品",
+    "rights": "用户明确要求提取至少20张PPT作品照片用于H5展示；企业素材获准公开参赛使用"
   }
 ]
