@@ -43,3 +43,27 @@
 .real-works-group small {color:#eee1cc;}
 .pattern-archive {box-shadow:0 8px 30px #60462e06;}
 @media(max-height:850px){.shape-page:not(.kiln-page):not(.collection-page) .shape-heading{padding-top:12px}.shape-page:not(.kiln-page):not(.collection-page) .shape-canvas{height:330px}.shape-page:not(.kiln-page):not(.collection-page) .shape-feedback{min-height:55px}.shape-page:not(.kiln-page):not(.collection-page) .vessel-outline{width:28px;height:28px}.shape-page:not(.kiln-page):not(.collection-page)>.craft-reference{margin-top:6px}}
+
+/* Final readability pass: muted text remains readable on the ivory surface. */
+.work-image {position:relative;aspect-ratio:4/5;overflow:hidden;border-radius:2px;background:#e4d8c9;}
+.real-works-pair .work-image img {position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:transparent;}
+.work-image-full {opacity:0;}
+.work-image[data-status="ready"] .work-image-full {opacity:1;}
+.work-image-status {position:absolute;inset:auto 0 0;padding:9px;background:#f3eee5ed;color:#594936;font:11px/1.65 system-ui;}
+.brand-invitation .work-image-status button {font:12px system-ui;min-height:36px;margin:4px 0 0;text-decoration:underline;}
+.shape-feedback {display:grid;place-items:center;min-height:66px;margin-top:-6px;}
+.shape-feedback .shape-instruction {margin:0;line-height:1.8;color:#6c5947;}
+.clay-palette-hint,.clay-actions>p,.clay-choice-status,.vessel-selection>p,.archive-disclaimer,.collection-footer p,.craft-dialog small,.craft-reference small {color:#74614e;}
+:is(.craft-actions,.history-actions) button {color:#705b46;}
+:is(.craft-actions,.history-actions) button:disabled {color:#8b8175;opacity:.65;}
+.vessel-names button {color:#786654;}
+.vessel-names button.is-selected {color:#493221;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:7px;}
+.real-works small,.material-reference small,.material-reference span {color:#705e4c;}
+.craft-dialog header {gap:12px;align-items:flex-start;}
+.craft-dialog header button {flex:0 0 44px;border-radius:50%;background:#e6dbcc;line-height:1;}
+.craft-dialog h2 {padding-top:6px;font-size:23px;}
+.craft-dialog small {font-size:12px;}
+.craft-eyebrow {color:#74614e;}
+.craft-dialog p {font-size:14px;line-height:1.85;}
+.real-works-group small {color:#fff4e5;}
+.brand-invitation>p,.collection-caption,.pattern-archive h2 {color:#75614e;}

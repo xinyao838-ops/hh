@@ -7,8 +7,7 @@
 .shape-canvas:active { cursor:grabbing; }
 .shape-canvas:focus-visible { outline:1px solid var(--color-fire);outline-offset:-4px;border-radius:10px; }
 .shape-feedback { text-align:center;margin-top:-20px;pointer-events:none;min-height:66px; }
-.shape-formed { min-height:25px;font:18px/1.6 var(--font-serif);letter-spacing:.1em;opacity:.25;transition:opacity .65s; }
-.shape-formed.is-visible { opacity:1; }
+.shape-instruction.is-formed {font-size:18px;color:var(--color-brown);letter-spacing:.08em;}
 .shape-instruction { font:13px/1.8 var(--font-serif);color:var(--color-muted);margin-top:8px; }
 .vessel-selection { margin:12px auto 0;text-align:center;touch-action:none;user-select:none; }
 .vessel-outline { display:block;width:36px;height:36px;margin:0 auto 2px;stroke:var(--color-brown);stroke-width:1;opacity:.55; }

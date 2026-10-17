@@ -11,7 +11,7 @@ export function CraftReference({stage,disabled=false}:{stage:CraftStage;disabled
   d.showModal();document.body.style.overflow='hidden'
   return()=>{const v=video.current;if(v){v.pause();v.removeAttribute('src');v.load()}d.close();document.body.style.overflow=old;trigger.current?.focus({preventScroll:true})}
  },[open])
- const close=()=>{setOpen(false);setPlaying(false);setFailed(false)}
+ const close=()=>{const v=video.current;if(v){v.pause();v.removeAttribute('src');v.load()}setOpen(false);setPlaying(false);setFailed(false)}
  return <>
   <button ref={trigger} className="craft-reference" disabled={disabled} onClick={()=>setOpen(true)}><span>{item.title}</span><small>真实工艺 ↗</small></button>
   {open&&<dialog ref={dialog} className="craft-dialog" onCancel={close} onClick={e=>{if(e.target===e.currentTarget)close()}} aria-labelledby="craft-reference-title">

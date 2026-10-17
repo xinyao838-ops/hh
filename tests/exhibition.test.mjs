@@ -42,3 +42,13 @@ test('every shipped craft asset has a local manifest record and explicit M12 cre
  assert.ok(gallery.includes('loading="lazy"'))
  assert.ok(!gallery.includes('useWorkshop'))
 })
+
+test('work cover previews are genuine self-contained image fallbacks and hints are exclusive',()=>{
+ const view=fs.readFileSync('src/components/WorkImage.tsx','utf8')
+ assert.ok(view.includes("onError={()=>setStatus('failed')}"))
+ assert.ok(view.includes('work-image-preview'))
+ assert.ok(view.includes('重新加载'))
+ const vessel=fs.readFileSync('src/pages/VesselPage.tsx','utf8')
+ assert.ok(!vessel.includes('className={`shape-formed'))
+ assert.ok(vessel.includes('shape.message?shapeCopy.formed:shapeCopy.turn'))
+})

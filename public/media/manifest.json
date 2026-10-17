@@ -132,5 +132,25 @@
     "stage": "07",
     "rights": "用户许可，不标产品名与价格",
     "audio": false
+  },
+  {
+    "id": "M01",
+    "source": "1、孔雀开屏.m4v",
+    "range": "9.6s",
+    "file": "/media/works/m01-cover.webp",
+    "stage": "07",
+    "usage": "真实静帧裁切，另生成64×80嵌入式JPEG网络失败预览",
+    "rights": "企业许可公开参赛使用",
+    "audio": false
+  },
+  {
+    "id": "M02",
+    "source": "3、丝绸之路.m4v",
+    "range": "2.17s",
+    "file": "/media/works/m02-cover.webp",
+    "stage": "07",
+    "usage": "真实静帧裁切，另生成64×80嵌入式JPEG网络失败预览",
+    "rights": "企业许可公开参赛使用",
+    "audio": false
   }
 ]

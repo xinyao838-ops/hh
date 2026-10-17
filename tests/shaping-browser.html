@@ -34,7 +34,7 @@ run.onclick=async()=>{
   await load('#/shape');await wait(()=>doc().querySelector('.shape-canvas')?.dataset.phase);c=doc().querySelector('.shape-canvas');check(Math.abs(Number(c.dataset.progress)-mid)<.001,'刷新恢复中途泥坯和同一纹样')
   await stroke(c,center(c),{x:.5,y:.02});await wait(()=>c.dataset.progress==='1');capture('完整茶盏')
   check(!doc().querySelector('.shape-footer button'),'成形后尚未观察，不提前出现入窑按钮')
-  const formedAt=performance.now();await wait(()=>!doc().querySelector('.shape-formed').classList.contains('is-visible'));check(performance.now()-formedAt>=1000,'成形提示约1.2秒后弱化')
+  const formedAt=performance.now();await wait(()=>!doc().querySelector('.shape-instruction').classList.contains('is-formed'));check(performance.now()-formedAt>=1000,'成形提示约1.2秒后替换为单一旋转提示')
   await stroke(c,center(c),{x:.75,y:center(c).y},'mouse');await wait(()=>doc().querySelector('.shape-footer button'));check(c.dataset.observed==='true','左右拖动观察后才出现送它入窑')
   const angle=Number(c.dataset.rotation),at=performance.now();await wait(()=>performance.now()-at>350);check(Math.abs(Number(c.dataset.rotation)-angle)>.001,'松手后有轻微阻尼惯性')
   check(frame.contentWindow.scrollY===scroll&&frame.contentWindow.getComputedStyle(c).touchAction==='none','塑形和旋转不引起页面滚动')

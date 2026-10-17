@@ -128,9 +128,21 @@ async function fireAndCollect(type){
  const download=page.waitForEvent('download');await page.locator('.save-card').click();const file=await download;await file.saveAs(path.join(out,type+'-1080x1440.png'))
  check(true,type+'真实PNG下载1080×1440');cards.push({type,state:await state(),filename:file.suggestedFilename()})
 }
-await fireAndCollect('盘');mark('全流程结束')
+await fireAndCollect('盘')
+await page.locator('.real-works').scrollIntoViewIfNeeded()
+await until(async()=>await page.locator('.work-image').evaluateAll(a=>a.length===2&&a.every(i=>i.dataset.status==='ready')))
+check(await page.locator('.work-image-full').evaluateAll(a=>a.every(i=>i.complete&&i.naturalWidth===640)),'07企业真实封面已解码')
+await page.screenshot({path:path.join(out,'07真实企业作品.png')})
+mark('07下载后重新制作');await page.locator('.restart-work').click();await page.locator('.clay-page').waitFor()
+const restarted=await state(),archived=await page.evaluate(()=>JSON.parse(localStorage.getItem('myPatterns')))
+check(restarted.experienceId!==cards[0].state.experienceId,'重新制作创建新体验')
+check(archived.some(r=>r.experienceId===cards[0].state.experienceId&&r.finalPattern.sourceKey===expected),'重新制作前已归档同源作品')
+await wait(800);mark('全流程结束')
 await client.send('Page.stopScreencast');recording=false;await Promise.all(writes)
 let list='ffconcat version 1.0\n';for(let i=0;i<records.length;i++)list+=`file '${records[i].name}'\nduration ${i+1<records.length?Math.max(.001,records[i+1].time-records[i].time):1}\n`;list+=`file '${records.at(-1).name}'\n`;await fs.writeFile(path.join(frames,'frames.txt'),list)
+// Recording is finished. Restore this isolated test context for additional vessel export regressions.
+await page.evaluate(([key,s])=>localStorage.setItem(key,JSON.stringify(s)),[key,cards[0].state])
+await page.goto(base+'/?export-regression#/collection');await page.locator('.collection-page').waitFor()
 for(const [type,index] of [['茶盏',0],['杯',1]]){
  await page.evaluate(()=>scrollTo(0,0));await tap('.clay-back');await page.locator('.kiln-page').waitFor();await tap('.clay-back');await page.locator('.shape-page:not(.kiln-page)').waitFor()
  await page.locator('.vessel-names button').nth(index).click();await wait(650);await form(type);await tap('.shape-footer button');await page.locator('.kiln-page').waitFor();await fireAndCollect(type)
