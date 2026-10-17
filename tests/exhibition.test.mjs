@@ -13,7 +13,7 @@ test('editorial images are local, documented and separate from generated state',
  assert.ok(!JSON.stringify(manifest).match(/[A-Z]:[\\/]/))
  const home=fs.readFileSync('src/pages/EntrancePage.tsx','utf8')
  assert.ok(!home.includes('<video'))
- assert.ok(home.includes('fetchPriority="high"'))
+ assert.ok(home.includes('<ClaySectionArtwork />'))
 })
 
 test('craft reference stays read-only and retains an image when playback fails',()=>{
@@ -52,3 +52,4 @@ test('work cover previews are genuine self-contained image fallbacks and hints a
  assert.ok(!vessel.includes('className={`shape-formed'))
  assert.ok(vessel.includes('shape.message?shapeCopy.formed:shapeCopy.turn'))
 })
+

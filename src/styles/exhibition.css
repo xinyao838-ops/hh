@@ -1,5 +1,4 @@
 /* Shared photographic editorial layer; interactive canvases remain primary. */
-.entrance-page .artwork-stage {height:clamp(280px,38svh,350px);margin:22px 0 24px;display:block;}
 .heritage-hero {position:absolute;inset:0 28px 18px 0;margin:0;overflow:hidden;border-radius:44% 44% 3px 3px;box-shadow:0 14px 28px #49382717;background:#b8a08a;}
 .heritage-detail {width:100%;height:100%;object-fit:cover;object-position:58% 50%;}
 .heritage-hero::after {content:'';position:absolute;inset:50% 0 0;background:linear-gradient(transparent,#30231bc9);pointer-events:none;}
@@ -19,8 +18,6 @@
 .clay-page .guide-character {min-height:38px;margin:9px 0 4px;}
 .clay-page .clay-actions {padding-top:16px;}
 @media(max-height:820px){.clay-page .clay-making-area{padding-top:8px}.clay-page .clay-page-heading h1{font-size:30px}.clay-page .clay-page-heading p{font-size:14px;margin-top:6px}.clay-page .material-reference{margin-top:12px}.clay-page .table-surface{min-height:156px}.clay-page .table-clay-art{max-width:106px}.clay-page .clay-actions>p{margin-top:8px}}
-@media(max-height:700px){.entrance-page .artwork-stage{height:210px;margin:12px 0 18px}.heritage-object{width:92px}.heritage-object img{height:85px}}
-@media(min-width:700px){.entrance-page .artwork-stage{height:450px;margin:0}.heritage-object{width:150px}.heritage-object img{height:150px}}
 
 /* Consistent exhibit lighting and hierarchy, without overlaying the generated clay. */
 .twist-workspace {background:radial-gradient(ellipse at 44% 32%,#f2ebdf,#e3d6c4);box-shadow:inset 0 1px #fffaf0,0 3px #d4c7b5,0 15px 30px #5139200b;}
@@ -71,3 +68,4 @@
 .real-works {margin-top:14px;}
 .real-works-pair {margin-top:0;}
 .real-works figcaption {padding-top:7px;}
+
