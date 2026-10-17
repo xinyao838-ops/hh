@@ -9,7 +9,7 @@ export const collectionCopy = {
  cardTitle:'我的这一纹',cardBrand:'金谷轩',cardStudio:'数字绞胎工坊',cardMotto:'表里如一，自成一纹。',
  inspect:'放大看我的纹',close:'收起纹样',zoom:'轻点或双指缩放，慢慢看这一纹。',
  brandTitle:'想看看真实的绞胎瓷？',brandBody:'从你这一纹，去看看金谷轩真实作品。',brandButton:'看看金谷轩作品',
- brandPlaceholder:'真实的作品，静候相见。',brandPending:'金谷轩官方作品入口待企业确认后开放。',brandReturn:'回到我的这一纹',
+ brandPlaceholder:'真实的作品，静候相见。',brandPending:'作品暂未加载，请稍后再试。',brandReturn:'回到我的这一纹',
  restart:'再做一纹',restartHint:'这一纹会先存入本机，再开启下一次体验。',
  storageError:'本机暂时无法保存作品。请先保存纹卡，释放浏览器存储空间后再试；当前作品仍保留在本页。',
  exportError:'纹卡暂时没有生成，请稍后重试。',downloaded:'已发起 PNG 保存。如未弹出下载，请长按图片保存。',

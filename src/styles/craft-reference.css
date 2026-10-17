@@ -21,3 +21,9 @@
 .craft-return {border-radius:3px;min-height:50px;margin-top:20px;}
 .craft-reference {font-size:14px;min-height:44px;}
 @media(max-width:380px){.craft-dialog h2{font-size:22px}.craft-dialog section{padding-inline:18px}.craft-film{margin-inline:-18px}}
+
+/* Compact viewing sheet: title, full frame, required credit, return. */
+.craft-dialog section {padding-top:16px;}
+.craft-dialog .craft-film {margin-top:12px;margin-bottom:12px;}
+.craft-dialog .craft-credit {text-align:right;font-size:12px;line-height:1.5;color:#74614e;}
+.craft-dialog .craft-return {margin-top:14px;}

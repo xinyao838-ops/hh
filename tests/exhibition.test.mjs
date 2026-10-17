@@ -35,10 +35,10 @@ test('every shipped craft asset has a local manifest record and explicit M12 cre
    assert.equal(record.audio,false)
    if(item.id==='M12')assert.equal(record.credit,'柴战柱')
   }
-  if(item.id==='M12')assert.ok(item.source.includes('柴战柱'))
+  if(item.id==='M12'){assert.ok(item.source.includes('柴战柱'));assert.equal(item.credit,'柴战柱')}
  }
  const gallery=fs.readFileSync('src/components/RealWorksGallery.tsx','utf8')
- assert.ok(gallery.includes('企业实拍作品'))
+ assert.ok(!gallery.includes('企业提供影像'))
  assert.ok(gallery.includes('loading="lazy"'))
  assert.ok(!gallery.includes('useWorkshop'))
 })

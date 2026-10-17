@@ -67,3 +67,7 @@
 .craft-dialog p {font-size:14px;line-height:1.85;}
 .real-works-group small {color:#fff4e5;}
 .brand-invitation>p,.collection-caption,.pattern-archive h2 {color:#75614e;}
+
+.real-works {margin-top:14px;}
+.real-works-pair {margin-top:0;}
+.real-works figcaption {padding-top:7px;}

@@ -16,7 +16,7 @@ export function EntrancePage({ onEnter, entering }: { onEnter: () => void; enter
         <div className="artwork-stage">
           <figure className="heritage-hero">
             <img className="heritage-detail" src={exhibitionImages.detail.src} alt={exhibitionImages.detail.alt} fetchPriority="high" width="960" height="540" />
-            <figcaption><span>真实器物 · 胎内有纹</span><small>企业提供影像</small></figcaption>
+            <figcaption><span>真实器物 · 胎内有纹</span></figcaption>
           </figure>
           <figure className="heritage-object"><img src={exhibitionImages.vessel.src} alt={exhibitionImages.vessel.alt} width="1280" height="720" /><figcaption>孔雀开屏 · 器物全貌</figcaption></figure>
         </div>
